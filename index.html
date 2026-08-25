@@ -12,7 +12,7 @@
 html,body{margin:0;padding:0;height:100%}
 body{
   font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:#1a1d21;background:#f4f5f7;line-height:1.5;
+  color:#1b1e23;background:#eceef1;line-height:1.5;
   -webkit-font-smoothing:antialiased;
 }
 button{font-family:inherit;cursor:pointer}
@@ -21,49 +21,30 @@ input,select,textarea{font-family:inherit;font-size:16px}
 .app{min-height:100%;display:flex;flex-direction:column}
 
 /* ============================================================
-   ESTILO CLARO / MINIMALISTA  (encuesta)  — inspirado en tienda
-   Paleta neutra cálida, marquee superior, navbar en píldora,
-   tipografía fina y mucho aire.
+   ESTILO CLARO / MINIMALISTA  (encuesta + admin)
+   Paleta neutra fría, tipografía fina y mucho aire.
+   Inspirado en la referencia "Tecnología & Seguridad".
    ============================================================ */
-.min{max-width:900px;margin:0 auto;width:100%;padding:0 20px 120px}
-
-/* Marquee superior */
-.marquee{position:fixed;top:0;left:0;right:0;height:34px;background:#eceae3;border-bottom:1px solid #e3e0d7;overflow:hidden;display:flex;align-items:center;z-index:60}
-.marquee .track{display:inline-flex;white-space:nowrap;animation:marq 30s linear infinite;will-change:transform}
-.marquee .track span{padding:0 4px;color:#98948a;font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;font-weight:600}
-@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-
-/* Navbar flotante en píldora */
-.navpill{max-width:860px;margin:52px auto 0;background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid #e7e4dc;border-radius:999px;padding:11px 14px 11px 22px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 30px rgba(40,38,34,.07)}
-.navpill .logo{display:flex;align-items:center;gap:10px}
-.navpill .mark{width:30px;height:30px;border-radius:50%;background:#202226;display:flex;align-items:center;justify-content:center;position:relative}
-.navpill .mark::after{content:"";width:9px;height:9px;border-radius:50%;background:#fff}
-.navpill .mark::before{content:"";position:absolute;width:4px;height:4px;border-radius:50%;background:#202226;z-index:2}
-.navpill .name{font-weight:700;font-size:15px;color:#23262b;letter-spacing:.2px}
-.navpill .name small{font-weight:400;color:#9a968c;font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin-left:2px}
-.navpill .navlinks{display:flex;gap:26px}
-.navpill .navlinks span{font-size:13px;color:#7c7a73;letter-spacing:.02em}
-.navpill .navlinks span.act{color:#23262b;font-weight:600}
-@media(max-width:680px){.navpill .navlinks{display:none}}
+.min{max-width:900px;margin:0 auto;width:100%;padding:64px 20px 120px}
 
 /* Progreso */
-.progress{max-width:860px;margin:18px auto 30px;height:3px;background:#e5e2d9;border-radius:99px;overflow:hidden}
-.progress > span{display:block;height:100%;background:#23262b;width:0;transition:width .4s ease}
+.progress{max-width:720px;margin:6px auto 30px;height:3px;background:#dde1e6;border-radius:99px;overflow:hidden}
+.progress > span{display:block;height:100%;background:#1b1e23;width:0;transition:width .4s ease}
 
 /* Tarjeta */
-.card{background:#fff;border:1px solid #ece9e1;border-radius:22px;padding:38px 34px;box-shadow:0 12px 40px rgba(35,38,43,.05);max-width:720px;margin:0 auto}
-.step-tag{font-size:11px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:#a5a096;margin:0 0 12px}
-.q{font-size:24px;font-weight:500;margin:0 0 6px;color:#23262b;letter-spacing:-.015em;line-height:1.25}
+.card{background:#fff;border:1px solid #e6e9ed;border-radius:22px;padding:38px 34px;box-shadow:0 12px 40px rgba(27,30,35,.06);max-width:720px;margin:0 auto}
+.step-tag{font-size:11px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:#9aa1a9;margin:0 0 12px}
+.q{font-size:24px;font-weight:500;margin:0 0 6px;color:#1b1e23;letter-spacing:-.015em;line-height:1.25}
 .q.sm{font-size:18px;margin-top:34px}
-.hint{color:#8f8c84;font-size:14px;margin:0 0 22px}
+.hint{color:#868d95;font-size:14px;margin:0 0 22px}
 
 .field{margin:0 0 18px}
-.field label{display:block;font-size:12px;font-weight:600;color:#6c6a63;margin:0 0 7px;letter-spacing:.04em}
-.field .opt{color:#b3afa4;font-weight:400}
+.field label{display:block;font-size:12px;font-weight:600;color:#63696f;margin:0 0 7px;letter-spacing:.04em}
+.field .opt{color:#a9afb6;font-weight:400}
 .field input[type=text],.field input[type=email],.field input[type=tel],.field input[type=number],.field select,.field textarea{
-  width:100%;padding:13px 15px;border:1px solid #e2dfd6;border-radius:13px;background:#fbfaf7;color:#23262b;outline:none;transition:border .15s,box-shadow .15s,background .15s;
+  width:100%;padding:13px 15px;border:1px solid #e0e4e9;border-radius:13px;background:#f7f8fa;color:#1b1e23;outline:none;transition:border .15s,box-shadow .15s,background .15s;
 }
-.field input:focus,.field select:focus,.field textarea:focus{border-color:#23262b;background:#fff;box-shadow:0 0 0 3px rgba(35,38,43,.07)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#1b1e23;background:#fff;box-shadow:0 0 0 3px rgba(27,30,35,.07)}
 .field textarea{min-height:92px;resize:vertical}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:560px){.grid2{grid-template-columns:1fr}}
@@ -71,65 +52,128 @@ input,select,textarea{font-family:inherit;font-size:16px}
 /* Escala de botones 0-10 / 1-10 */
 .scale{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
 .scale button{
-  min-width:46px;height:46px;padding:0 6px;border:1px solid #e4e1d8;background:#fbfaf7;border-radius:12px;
-  font-weight:600;color:#5c5a53;font-size:15px;transition:.12s;
+  min-width:46px;height:46px;padding:0 6px;border:1px solid #e2e6ea;background:#f7f8fa;border-radius:12px;
+  font-weight:600;color:#5a6067;font-size:15px;transition:.12s;
 }
-.scale button:hover{border-color:#c3bfb2;background:#fff}
-.scale button.on{background:#23262b;border-color:#23262b;color:#fff;box-shadow:0 4px 14px rgba(35,38,43,.22)}
-.scale-ends{display:flex;justify-content:space-between;font-size:11px;color:#b3afa4;margin-top:6px;letter-spacing:.04em}
+.scale button:hover{border-color:#bfc5cc;background:#fff}
+.scale button.on{background:#1b1e23;border-color:#1b1e23;color:#fff;box-shadow:0 4px 14px rgba(27,30,35,.22)}
+.scale-ends{display:flex;justify-content:space-between;font-size:11px;color:#a9afb6;margin-top:6px;letter-spacing:.04em}
 
 /* Opciones tipo radio / checkbox */
 .choices{display:flex;flex-direction:column;gap:10px;margin:4px 0 4px}
 .opt-row{
-  display:flex;align-items:center;gap:14px;border:1px solid #e6e3da;border-radius:14px;padding:15px 16px;background:#fbfaf7;
+  display:flex;align-items:center;gap:14px;border:1px solid #e4e8ec;border-radius:14px;padding:15px 16px;background:#f7f8fa;
   cursor:pointer;transition:.12s;user-select:none;
 }
-.opt-row:hover{border-color:#c9c5b8;background:#fff}
-.opt-row.on{border-color:#23262b;background:#f6f5f1}
+.opt-row:hover{border-color:#c6ccd2;background:#fff}
+.opt-row.on{border-color:#1b1e23;background:#f2f3f5}
 .opt-row .box{
-  width:20px;height:20px;flex:0 0 auto;border:2px solid #cfccc0;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:.12s;
+  width:20px;height:20px;flex:0 0 auto;border:2px solid #ccd2d8;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:.12s;
 }
 .opt-row.check .box{border-radius:6px}
-.opt-row.on .box{border-color:#23262b;background:#23262b}
+.opt-row.on .box{border-color:#1b1e23;background:#1b1e23}
 .opt-row.on .box::after{content:"";width:8px;height:8px;background:#fff;border-radius:inherit}
-.opt-row span{font-size:15px;color:#3a382f;font-weight:400}
+.opt-row span{font-size:15px;color:#33383e;font-weight:400}
 
-.rating-row{display:flex;flex-direction:column;gap:8px;padding:18px 0;border-top:1px solid #f0ede4}
+.rating-row{display:flex;flex-direction:column;gap:8px;padding:18px 0;border-top:1px solid #eef0f3}
 .rating-row:first-of-type{border-top:none}
-.rating-row .rlabel{font-weight:500;font-size:15px;color:#3a382f}
+.rating-row .rlabel{font-weight:500;font-size:15px;color:#33383e}
 
-.emp-block{border:1px solid #ece9e1;border-radius:16px;padding:18px;margin-bottom:14px;background:#fbfaf7}
-.emp-block h4{margin:0 0 12px;font-size:11px;color:#a5a096;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.emp-block{border:1px solid #e6e9ed;border-radius:16px;padding:18px;margin-bottom:14px;background:#f7f8fa}
+.emp-block h4{margin:0 0 12px;font-size:11px;color:#9aa1a9;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
 
 .nav{display:flex;gap:12px;margin-top:32px}
 .btn{
   border:none;border-radius:999px;padding:15px 28px;font-weight:600;font-size:15px;letter-spacing:.01em;transition:.15s;
 }
-.btn-primary{background:#23262b;color:#fff;flex:1;box-shadow:0 8px 22px rgba(35,38,43,.2)}
-.btn-primary:hover{background:#34383e}
-.btn-ghost{background:#fff;color:#5c5a53;border:1px solid #e2dfd6}
-.btn-ghost:hover{border-color:#c3bfb2}
+.btn-primary{background:#1b1e23;color:#fff;flex:1;box-shadow:0 8px 22px rgba(27,30,35,.2)}
+.btn-primary:hover{background:#2b2f36}
+.btn-ghost{background:#fff;color:#5a6067;border:1px solid #e0e4e9}
+.btn-ghost:hover{border-color:#bfc5cc}
 .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 
-.cog{position:fixed;top:44px;right:16px;z-index:55;width:40px;height:40px;border-radius:50%;border:1px solid #e3e0d7;background:rgba(255,255,255,.85);color:#8f8c84;font-size:17px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.06)}
-.cog:hover{color:#23262b;border-color:#c3bfb2}
-
-/* Bienvenida (hero) / gracias */
-.herowrap{max-width:860px;margin:22px auto 0;border-radius:28px;overflow:hidden;
-  background:linear-gradient(135deg,#d9dbdf 0%,#b9bcc2 48%,#e7e4de 100%);
-  min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:64px 28px;position:relative}
-.herowrap::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 40%,transparent 40%,rgba(60,62,66,.18) 100%);pointer-events:none}
-.herowrap .htitle{font-size:clamp(58px,12vw,132px);font-weight:300;color:#fff;letter-spacing:-.04em;line-height:.92;margin:0;text-shadow:0 6px 30px rgba(30,32,36,.22);position:relative;z-index:1}
-.herowrap .hsub{margin:20px 0 34px;color:#f4f5f6;font-size:clamp(12px,2.4vw,16px);letter-spacing:.5em;text-transform:uppercase;font-weight:500;padding-left:.5em;position:relative;z-index:1}
-.btn-hero{background:#fff;color:#23262b;border:none;border-radius:999px;padding:17px 44px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;box-shadow:0 14px 34px rgba(0,0,0,.16);transition:.15s;position:relative;z-index:1}
-.btn-hero:hover{transform:translateY(-1px);box-shadow:0 18px 40px rgba(0,0,0,.2)}
-.hero{text-align:center;padding:20px 0 0}
-.hero h2{font-size:clamp(34px,7vw,52px);margin:0 0 10px;letter-spacing:-.03em;color:#23262b;font-weight:300}
-.hero p{color:#8f8c84;font-size:16px;max-width:460px;margin:0 auto 32px;line-height:1.6}
-.check-ic{width:88px;height:88px;border-radius:50%;background:#eceae3;color:#23262b;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 26px;border:1px solid #e3e0d7}
+/* Botón de configuración (engrane) — minimalista */
+.cog{position:fixed;top:16px;right:16px;z-index:55;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:.15s}
+.cog:hover{background:rgba(255,255,255,.24)}
+.cog.dark{border-color:#e0e4e9;background:rgba(255,255,255,.9);color:#868d95}
+.cog.dark:hover{color:#1b1e23;border-color:#bfc5cc}
 
 /* ============================================================
-   ESTILO BRUTALISM  (ruleta + admin)
+   HERO A PANTALLA COMPLETA (bienvenida) — "card de foto"
+   ============================================================ */
+.hero-full{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 28px;overflow:hidden;background:#15171b}
+.hero-full .photo{position:absolute;inset:0;
+  background:
+    radial-gradient(120% 95% at 74% 34%, rgba(150,162,178,.42), transparent 52%),
+    radial-gradient(90% 80% at 18% 66%, rgba(96,108,124,.34), transparent 60%),
+    linear-gradient(118deg,#262b32 0%,#171a1e 46%,#2e343c 100%);
+}
+.hero-full .photo::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(15,17,20,.35) 0%,transparent 22%,transparent 78%,rgba(15,17,20,.35) 100%);}
+.hero-full .photo::after{content:"";position:absolute;inset:0;
+  background:radial-gradient(130% 120% at 50% 42%,transparent 46%,rgba(10,11,13,.62) 100%);}
+.hero-full .brand{position:absolute;top:22px;left:26px;display:flex;align-items:center;gap:10px;z-index:2}
+.hero-full .brand .mk{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;position:relative}
+.hero-full .brand .mk::after{content:"";width:9px;height:9px;border-radius:50%;background:#fff}
+.hero-full .brand .bn{font-weight:700;font-size:14px;color:#fff;letter-spacing:.02em}
+.hero-full .brand .bn small{display:block;font-weight:400;color:rgba(255,255,255,.6);font-size:9px;letter-spacing:.28em;text-transform:uppercase;margin-top:1px}
+.hero-full .inner{position:relative;z-index:2;max-width:900px}
+.hero-full .htitle{font-size:clamp(56px,13vw,150px);font-weight:300;color:#fff;letter-spacing:-.04em;line-height:.9;margin:0;text-shadow:0 8px 40px rgba(0,0,0,.35)}
+.hero-full .hsub{margin:26px 0 40px;color:rgba(244,245,246,.9);font-size:clamp(11px,2.4vw,17px);letter-spacing:.5em;text-transform:uppercase;font-weight:500;padding-left:.5em}
+.btn-hero{background:#fff;color:#1b1e23;border:none;border-radius:999px;padding:18px 46px;font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;box-shadow:0 16px 40px rgba(0,0,0,.28);transition:.15s}
+.btn-hero:hover{transform:translateY(-2px);box-shadow:0 22px 48px rgba(0,0,0,.34)}
+.hero-full .foot{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:rgba(255,255,255,.55);font-size:12px;z-index:2;padding:0 24px}
+
+/* Pantalla "gracias" minimalista */
+.hero{text-align:center;padding:20px 0 0}
+.hero h2{font-size:clamp(34px,7vw,52px);margin:0 0 10px;letter-spacing:-.03em;color:#1b1e23;font-weight:300}
+.hero p{color:#868d95;font-size:16px;max-width:460px;margin:0 auto 32px;line-height:1.6}
+.check-ic{width:88px;height:88px;border-radius:50%;background:#eceef1;color:#1b1e23;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 26px;border:1px solid #e0e4e9}
+
+/* ============================================================
+   ADMIN MINIMALISTA (config + PIN)
+   ============================================================ */
+.adm-head{max-width:720px;margin:0 auto 6px}
+.adm-head h2{font-size:30px;font-weight:300;letter-spacing:-.02em;color:#1b1e23;margin:0 0 4px}
+.adm-head p{color:#868d95;font-size:14px;margin:0 0 24px}
+.card + .card{margin-top:20px}
+.card .ctag{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#9aa1a9;margin:0 0 16px}
+.mstat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:720px;margin:0 auto 20px}
+.mstat{background:#fff;border:1px solid #e6e9ed;border-radius:18px;padding:22px;text-align:center;box-shadow:0 10px 30px rgba(27,30,35,.05)}
+.mstat b{display:block;font-size:34px;font-weight:300;color:#1b1e23;line-height:1}
+.mstat span{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#9aa1a9;margin-top:6px;display:block}
+.mtbl{width:100%;border-collapse:collapse;margin-bottom:14px}
+.mtbl th{font-size:11px;text-transform:uppercase;letter-spacing:.1em;text-align:left;padding:6px 8px;border-bottom:1px solid #e6e9ed;color:#9aa1a9;font-weight:600}
+.mtbl td{padding:6px 6px}
+.mtbl input{width:100%;border:1px solid #e0e4e9;border-radius:10px;padding:10px 10px;font-family:inherit;background:#f7f8fa;color:#1b1e23}
+.mtbl input:focus{outline:none;border-color:#1b1e23;background:#fff}
+.mtbl input.num{text-align:center}
+.mtbl .del{background:#fff;color:#d64545;border:1px solid #e6d0d0;border-radius:10px;font-weight:700;width:38px;height:38px;font-size:17px;transition:.12s}
+.mtbl .del:hover{background:#fbeaea;border-color:#e5b8b8}
+.btn-sm{border:none;border-radius:999px;padding:12px 22px;font-weight:600;font-size:14px;transition:.15s}
+.btn-dark{background:#1b1e23;color:#fff;box-shadow:0 6px 18px rgba(27,30,35,.18)}
+.btn-dark:hover{background:#2b2f36}
+.btn-outline{background:#fff;color:#5a6067;border:1px solid #e0e4e9}
+.btn-outline:hover{border-color:#bfc5cc}
+.btn-danger{background:#fff;color:#d64545;border:1px solid #e6d0d0}
+.btn-danger:hover{background:#fbeaea;border-color:#e5b8b8}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.back{display:inline-block;margin-top:6px;color:#63696f;font-weight:600;text-decoration:none;cursor:pointer;font-size:14px}
+.back:hover{color:#1b1e23}
+.mini-note{font-size:12.5px;color:#868d95;margin:0 0 14px;line-height:1.5}
+
+/* Pin pad minimalista */
+.pinpad{max-width:300px;margin:8vh auto 0}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin:20px 0}
+.pin-dots i{width:14px;height:14px;border:2px solid #c6ccd2;border-radius:50%;transition:.15s}
+.pin-dots i.f{background:#1b1e23;border-color:#1b1e23}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.keypad button{background:#fff;border:1px solid #e6e9ed;border-radius:16px;font-weight:500;font-size:22px;padding:16px;font-family:inherit;color:#1b1e23;transition:.12s;box-shadow:0 4px 12px rgba(27,30,35,.05)}
+.keypad button:hover{border-color:#bfc5cc}
+.keypad button:active{transform:scale(.97)}
+
+/* ============================================================
+   ESTILO BRUTALISM  (SOLO la ruleta)
    ============================================================ */
 .brutal{
   background:#f7d417;color:#111;min-height:100vh;
@@ -156,7 +200,7 @@ input,select,textarea{font-family:inherit;font-size:16px}
 }
 .hub{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
-  width:54px;height:54px;border-radius:50%;background:#111;border:4px solid #fff;
+  width:60px;height:60px;border-radius:50%;background:#111;border:4px solid #fff;
   display:flex;align-items:center;justify-content:center;color:#f7d417;font-weight:900;font-size:11px;text-align:center;
 }
 .bbtn{
@@ -168,42 +212,17 @@ input,select,textarea{font-family:inherit;font-size:16px}
 .bbtn:disabled{opacity:.45;box-shadow:none}
 .bbtn.alt{background:#fff;color:#111}
 .bbtn.small{font-size:14px;padding:12px}
-.brutal .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
 .result{
   text-align:center;background:#111;color:#f7d417;border:4px solid #111;padding:22px;margin:14px 0;
   box-shadow:8px 8px 0 #ff5252;
 }
 .result .lbl{font-size:12px;letter-spacing:3px;font-weight:700;text-transform:uppercase;opacity:.8}
-.result .prize{font-size:30px;font-weight:900;text-transform:uppercase;margin:6px 0 0;line-height:1;-webkit-text-stroke:.5px #f7d417}
+.result .prize{font-size:28px;font-weight:900;text-transform:uppercase;margin:6px 0 0;line-height:1;-webkit-text-stroke:.5px #f7d417}
 .result.nolose{box-shadow:8px 8px 0 #2962ff}
-
-/* Admin */
-.admin-field{margin-bottom:14px}
-.admin-field label{display:block;font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:1px;margin-bottom:5px}
-.admin-field input,.admin-field textarea{width:100%;padding:10px;border:3px solid #111;background:#fff;color:#111;font-family:inherit;font-weight:700}
-.prize-tbl{width:100%;border-collapse:collapse;margin-bottom:8px}
-.prize-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:1px;text-align:left;padding:4px 6px;border-bottom:3px solid #111}
-.prize-tbl td{padding:4px 4px}
-.prize-tbl input{width:100%;border:2px solid #111;padding:8px 6px;font-family:inherit;font-weight:700;background:#fff}
-.prize-tbl input.num{text-align:center}
-.prize-tbl .del{background:#ff5252;color:#fff;border:2px solid #111;font-weight:900;width:36px;height:36px;font-size:16px}
-.pill{display:inline-block;background:#111;color:#f7d417;font-size:11px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:1px}
-.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
-.stat{background:#111;color:#f7d417;padding:14px;text-align:center}
-.stat b{display:block;font-size:30px;line-height:1}
-.stat span{font-size:11px;text-transform:uppercase;letter-spacing:1px}
-.pinpad{max-width:280px;margin:40px auto}
-.pin-dots{display:flex;justify-content:center;gap:12px;margin:18px 0}
-.pin-dots i{width:16px;height:16px;border:3px solid #111;border-radius:50%}
-.pin-dots i.f{background:#111}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.keypad button{background:#fff;border:3px solid #111;font-weight:900;font-size:22px;padding:16px;font-family:inherit;box-shadow:3px 3px 0 #111}
-.keypad button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #111}
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#111;color:#f7d417;font-weight:700;padding:12px 22px;z-index:80;border:3px solid #f7d417;font-family:"Courier New",monospace;box-shadow:5px 5px 0 rgba(0,0,0,.3)}
-.mini-note{font-size:12px;color:#6b7280;margin-top:6px}
-.brutal .mini-note{color:#111;font-weight:700;opacity:.7}
 .brutal a.back{display:inline-block;margin-top:6px;color:#111;font-weight:900;text-decoration:underline;cursor:pointer}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#1b1e23;color:#fff;font-weight:600;padding:12px 22px;z-index:80;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:14px}
 </style>
 </head>
 <body>
@@ -215,8 +234,10 @@ input,select,textarea{font-family:inherit;font-size:16px}
 "use strict";
 /* ================================================================
    EXPO PYME · Encuesta de satisfacción + Ruleta (offline)
-   - Encuesta: estilo minimalista/corporativo, 3 ramas (rol).
-   - Ruleta: estilo brutalism, con panel de configuración (PIN).
+   - Encuesta y configuración: estilo minimalista/corporativo.
+   - Ruleta: estilo brutalism (único lugar donde se conserva).
+   - La ruleta entrega un solo premio: una comida del restaurante
+     "Arcada".
    - Guarda histórico en el navegador y exporta a Excel con el
      MISMO layout que "Encuesta de satisfacción Expo PyME.xlsx"
      (49 columnas, encabezado de 2 filas, datos desde la fila 3).
@@ -225,8 +246,6 @@ input,select,textarea{font-family:inherit;font-size:16px}
 
 /* ----------------------------------------------------------------
    1) CONFIGURACIÓN EDITABLE  (opciones de la encuesta)
-   Las opciones de "qué gustó más/menos" y "perfiles" no venían en
-   el archivo; puedes ajustarlas aquí o pásame las exactas.
    ---------------------------------------------------------------- */
 var EMPRESAS = ["ALLIAX","CEMEX","COFLEX","CUPRUM","FINSA","INTERNATIONAL",
   "KANDELIUM","LAMOSA","MAGNEKON","RAGASA","SIGMA","STANLEY BLACK & DECKER",
@@ -248,13 +267,9 @@ var BENEFICIOS = [
   {k:"crecimiento", t:"Crecimiento para mi empresa"}
 ];
 
+/* La ruleta entrega un ÚNICO premio: comida del restaurante Arcada. */
 var DEFAULT_PRIZES = [
-  {name:"Taza Expo PyME",   weight:30, stock:20, isPrize:true},
-  {name:"Bolsa ecológica",  weight:25, stock:15, isPrize:true},
-  {name:"Playera",          weight:18, stock:10, isPrize:true},
-  {name:"Termo",            weight:10, stock:6,  isPrize:true},
-  {name:"Gift Card $500",   weight:4,  stock:2,  isPrize:true},
-  {name:"Sigue participando",weight:35,stock:99999, isPrize:false}
+  {name:"Comida en restaurante Arcada", weight:100, stock:99999, isPrize:true}
 ];
 
 /* ----------------------------------------------------------------
@@ -303,42 +318,25 @@ function buildSteps(){
 function el(html){var d=document.createElement("div");d.innerHTML=html.trim();return d.firstChild;}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function toast(msg){var t=document.getElementById("toast");t.className="toast";t.textContent=msg;clearTimeout(t._t);t._t=setTimeout(function(){t.className="";},2200);}
-function show(node){root.innerHTML="";root.appendChild(node);document.getElementById("cogBtn").classList.remove("hidden");window.scrollTo(0,0);}
-
-/* Marquee + navbar en píldora (reutilizable en la encuesta) */
-function marqueeHTML(){
-  var msg=["Expo PyME","Encuesta de satisfacción","Tu opinión cuenta","Gracias por participar","Tecnología & Seguridad"];
-  var one=msg.map(function(m){return '<span>'+esc(m)+' &nbsp;·</span>';}).join("");
-  return '<div class="marquee"><div class="track">'+one+one+one+one+'</div></div>';
-}
-function navHTML(active){
-  var links=["Inicio","Encuesta","Ruleta","Nosotros"];
-  var l=links.map(function(t){return '<span class="'+(t===active?"act":"")+'">'+t+'</span>';}).join("");
-  return '<div class="navpill">'+
-    '<div class="logo"><div class="mark"></div><div class="name">'+esc(CFG.eventTitle)+' <small>Encuesta</small></div></div>'+
-    '<div class="navlinks">'+l+'</div>'+
-  '</div>';
-}
+function show(node,darkCog){root.innerHTML="";root.appendChild(node);var c=document.getElementById("cogBtn");c.classList.remove("hidden");c.classList.toggle("dark",!!darkCog);window.scrollTo(0,0);}
 
 /* ================================================================
-   5) BIENVENIDA
+   5) BIENVENIDA — hero de foto a pantalla completa (sin navbar)
    ================================================================ */
 function screenWelcome(){
-  document.body.style.background="#f3f1ec";
+  document.body.style.background="#15171b";
   var n=el(
-    '<div class="min">'+
-      marqueeHTML()+
-      navHTML("Inicio")+
-      '<div class="herowrap">'+
-        '<h2 class="htitle">'+esc(CFG.eventTitle)+'</h2>'+
+    '<div class="hero-full">'+
+      '<div class="photo"></div>'+
+      '<div class="brand"><div class="mk"></div><div class="bn">'+esc(CFG.eventTitle)+'<small>Tecnología &amp; Seguridad</small></div></div>'+
+      '<div class="inner">'+
+        '<h1 class="htitle">'+esc(CFG.eventTitle)+'</h1>'+
         '<p class="hsub">Tecnología &amp; Seguridad</p>'+
         '<button class="btn-hero" id="startBtn">Comenzar encuesta</button>'+
       '</div>'+
-      '<div class="hero" style="padding-top:44px">'+
-        '<p>Cuéntanos cómo te fue en el evento. Son solo unos minutos y al terminar podrás <b>girar la ruleta</b> por un premio.</p>'+
-      '</div>'+
+      '<div class="foot">Responde la encuesta y gira la ruleta por una comida en restaurante Arcada.</div>'+
     '</div>');
-  show(n);
+  show(n,false);
   n.querySelector("#startBtn").onclick=function(){resetSurvey();renderSurvey();};
 }
 
@@ -346,7 +344,7 @@ function screenWelcome(){
    6) ENCUESTA (minimalista, multipaso)
    ================================================================ */
 function renderSurvey(){
-  document.body.style.background="#f4f5f7";
+  document.body.style.background="#eceef1";
   var steps=buildSteps();
   var id=steps[stepIndex];
   var pct=Math.round((stepIndex)/(steps.length)*100);
@@ -369,12 +367,10 @@ function renderSurvey(){
 
   var n=el(
     '<div class="min">'+
-      marqueeHTML()+
-      navHTML("Encuesta")+
       '<div class="progress"><span style="width:'+pct+'%"></span></div>'+
       '<div class="card">'+body+nav+'</div>'+
     '</div>');
-  show(n);
+  show(n,true);
   wireSurvey(n,id);
   var back=n.querySelector("#backBtn"); if(back) back.onclick=function(){stepIndex--;renderSurvey();};
   n.querySelector("#nextBtn").onclick=function(){
@@ -532,7 +528,7 @@ function validateStep(id){
 }
 
 /* ================================================================
-   7) RULETA (brutalism)
+   7) RULETA (brutalism) — un solo premio: comida en Arcada
    ================================================================ */
 function availablePrizes(){return CFG.prizes.filter(function(p){return (p.stock===null||p.stock>0)&&(parseFloat(p.weight)||0)>0;});}
 
@@ -543,20 +539,29 @@ function pickWeighted(list){
   return list[list.length-1];
 }
 
+/* Segmentos visuales de la ruleta.
+   Con un único premio, se dibujan varias porciones decorativas
+   (misma comida) para que la rueda se vea completa y gire bien. */
+function wheelSegments(prizes){
+  if(prizes.length>1) return prizes.map(function(p){return {name:p.name};});
+  var labels=["ARCADA","COMIDA","ARCADA","COMIDA","ARCADA","COMIDA","ARCADA","COMIDA"];
+  return labels.map(function(l){return {name:l};});
+}
+
 function renderRoulette(){
   document.body.style.background="#f7d417";
-  var prizes=CFG.prizes;
+  var segs=wheelSegments(CFG.prizes);
   var n=el(
     '<div class="brutal"><div class="bwrap">'+
       '<h2>¡GIRA<br>LA RULETA!</h2>'+
-      '<p class="sub">'+esc(CFG.eventTitle)+' · Premios</p>'+
+      '<p class="sub">'+esc(CFG.eventTitle)+' · Premio</p>'+
       '<div class="panel" style="padding:10px">'+
-        '<div class="wheel-stage"><div class="pointer"></div>'+wheelSVG(prizes)+'<div class="hub">EXPO<br>PYME</div></div>'+
+        '<div class="wheel-stage"><div class="pointer"></div>'+wheelSVG(segs)+'<div class="hub">GIRA</div></div>'+
       '</div>'+
       '<button class="bbtn" id="spinBtn">GIRAR</button>'+
       '<div id="spinResult"></div>'+
     '</div></div>');
-  show(n);
+  show(n,false);
   var group=n.querySelector("#wheelGroup");
   var btn=n.querySelector("#spinBtn");
   var res=n.querySelector("#spinResult");
@@ -568,10 +573,12 @@ function renderRoulette(){
     if(!avail.length){toast("No hay premios configurados");return;}
     spinning=true;btn.disabled=true;res.innerHTML="";
     var winner=pickWeighted(avail);
-    var idx=prizes.indexOf(winner);
-    var N=prizes.length, seg=360/N;
-    // ángulo para que el CENTRO del segmento ganador quede arriba (puntero)
-    var center=idx*seg+seg/2;
+    var N=segs.length, seg=360/N;
+    // índice del segmento donde cae el puntero
+    var landIdx = (CFG.prizes.length>1) ? CFG.prizes.indexOf(winner) : Math.floor(Math.random()*N);
+    if(landIdx<0) landIdx=0;
+    // ángulo para que el CENTRO del segmento quede arriba (puntero)
+    var center=landIdx*seg+seg/2;
     var jitter=(Math.random()-0.5)*seg*0.6;
     var target=(360-center)-jitter;
     totalRot+=360*6+(((target- (totalRot%360))%360)+360)%360;
@@ -584,8 +591,8 @@ function renderRoulette(){
   };
 }
 
-function wheelSVG(prizes){
-  var N=prizes.length, seg=360/N, cx=200, cy=200, r=196;
+function wheelSVG(segs){
+  var N=segs.length, seg=360/N, cx=200, cy=200, r=196;
   var paths="", labels="";
   for(var i=0;i<N;i++){
     var a0=(i*seg-90)*Math.PI/180, a1=((i+1)*seg-90)*Math.PI/180;
@@ -598,7 +605,7 @@ function wheelSVG(prizes){
     var lr=r*0.62, lx=cx+lr*Math.cos(mid), ly=cy+lr*Math.sin(mid);
     var rot=(i*seg+seg/2);
     var light=(col==="#111111"||col==="#2962ff"||col==="#ff5252");
-    var nm=prizes[i].name; if(nm.length>16) nm=nm.slice(0,15)+"…";
+    var nm=segs[i].name; if(nm.length>16) nm=nm.slice(0,15)+"…";
     labels+='<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" fill="'+(light?"#fff":"#111")+'" font-size="13" font-weight="800" font-family="Courier New, monospace" text-anchor="middle" transform="rotate('+rot.toFixed(1)+','+lx.toFixed(1)+','+ly.toFixed(1)+')">'+esc(nm)+'</text>';
   }
   return '<svg viewBox="0 0 400 400"><g id="wheelGroup"><circle cx="200" cy="200" r="198" fill="#111"/>'+paths+labels+'</g></svg>';
@@ -637,11 +644,9 @@ function commitResponse(winner){
 }
 
 function screenThanks(){
-  document.body.style.background="#f3f1ec";
+  document.body.style.background="#eceef1";
   var n=el(
     '<div class="min">'+
-      marqueeHTML()+
-      navHTML("Inicio")+
       '<div class="hero" style="padding-top:70px">'+
         '<div class="check-ic">✓</div>'+
         '<h2>¡Listo!</h2>'+
@@ -649,31 +654,30 @@ function screenThanks(){
         '<button class="btn btn-primary" id="againBtn" style="max-width:300px;margin:0 auto">Nueva encuesta</button>'+
       '</div>'+
     '</div>');
-  show(n);
+  show(n,true);
   n.querySelector("#againBtn").onclick=screenWelcome;
   setTimeout(function(){ if(document.getElementById("againBtn")) screenWelcome(); }, 9000);
 }
 
 /* ================================================================
-   9) ADMIN (PIN + configuración + exportar)  — brutalism
+   9) ADMIN (PIN + configuración + exportar)  — minimalista
    ================================================================ */
 function askPin(){
-  document.body.style.background="#f7d417";
+  document.body.style.background="#eceef1";
   var entered="";
   var n=el(
-    '<div class="brutal"><div class="bwrap">'+
+    '<div class="min">'+
       '<div class="pinpad">'+
-        '<h2 style="text-align:center;font-size:24px">ACCESO</h2>'+
-        '<p class="sub" style="text-align:center">Ingresa el PIN</p>'+
+        '<div class="adm-head" style="text-align:center"><h2>Acceso</h2><p>Ingresa el PIN de administración</p></div>'+
         '<div class="pin-dots" id="dots"><i></i><i></i><i></i><i></i></div>'+
         '<div class="keypad" id="kp">'+
           [1,2,3,4,5,6,7,8,9].map(function(d){return '<button data-d="'+d+'">'+d+'</button>';}).join("")+
           '<button data-d="back">⌫</button><button data-d="0">0</button><button data-d="ok">OK</button>'+
         '</div>'+
-        '<div style="text-align:center;margin-top:16px"><a class="back" id="cancel">← Volver</a></div>'+
+        '<div style="text-align:center;margin-top:18px"><a class="back" id="cancel">← Volver</a></div>'+
       '</div>'+
-    '</div></div>');
-  show(n);
+    '</div>');
+  show(n,true);
   var dots=n.querySelectorAll("#dots i");
   function draw(){dots.forEach(function(dt,i){dt.classList.toggle("f",i<entered.length);});}
   n.querySelector("#kp").addEventListener("click",function(e){
@@ -688,7 +692,7 @@ function askPin(){
 }
 
 function renderAdmin(){
-  document.body.style.background="#f7d417";
+  document.body.style.background="#eceef1";
   var hist=loadHist();
   var totalPrizes=hist.filter(function(h){return h.premio;}).length;
   var rows=CFG.prizes.map(function(p,i){
@@ -702,42 +706,41 @@ function renderAdmin(){
   }).join("");
 
   var n=el(
-    '<div class="brutal"><div class="bwrap">'+
-      '<h2 style="font-size:26px">CONFIG</h2>'+
-      '<p class="sub">Panel de administración</p>'+
+    '<div class="min">'+
+      '<div class="adm-head"><h2>Configuración</h2><p>Panel de administración</p></div>'+
 
-      '<div class="statgrid">'+
-        '<div class="stat"><b>'+hist.length+'</b><span>Respuestas</span></div>'+
-        '<div class="stat"><b>'+totalPrizes+'</b><span>Premios entregados</span></div>'+
+      '<div class="mstat-grid">'+
+        '<div class="mstat"><b>'+hist.length+'</b><span>Respuestas</span></div>'+
+        '<div class="mstat"><b>'+totalPrizes+'</b><span>Premios entregados</span></div>'+
       '</div>'+
 
-      '<div class="panel">'+
-        '<div class="pill">Premios de la ruleta</div>'+
-        '<p class="mini-note">Peso = probabilidad relativa. Stock = cantidad disponible. Premio = cuenta como premio ganado (se guarda en custom_1). Desmarca "Premio" para casillas tipo "Sigue participando".</p>'+
-        '<table class="prize-tbl"><thead><tr><th>Nombre</th><th>Peso</th><th>Stock</th><th>Premio</th><th></th></tr></thead>'+
+      '<div class="card">'+
+        '<p class="ctag">Premios de la ruleta</p>'+
+        '<p class="mini-note">La ruleta está pensada para un solo premio (comida en restaurante Arcada). Peso = probabilidad relativa. Stock = cantidad disponible. Premio = cuenta como premio ganado (se guarda en custom_1).</p>'+
+        '<table class="mtbl"><thead><tr><th>Nombre</th><th>Peso</th><th>Stock</th><th>Premio</th><th></th></tr></thead>'+
         '<tbody id="prizeBody">'+rows+'</tbody></table>'+
-        '<button class="bbtn small alt" id="addPrize">+ AGREGAR PREMIO</button>'+
+        '<button class="btn-sm btn-outline" id="addPrize">+ Agregar premio</button>'+
       '</div>'+
 
-      '<div class="panel">'+
-        '<div class="pill">Ajustes</div>'+
-        '<div class="admin-field" style="margin-top:12px"><label>Nombre del evento</label><input id="evtTitle" value="'+esc(CFG.eventTitle)+'"></div>'+
-        '<div class="admin-field"><label>PIN de acceso (4 dígitos)</label><input id="pinIn" maxlength="4" value="'+esc(CFG.pin)+'"></div>'+
-        '<button class="bbtn small" id="saveCfg">GUARDAR AJUSTES</button>'+
+      '<div class="card">'+
+        '<p class="ctag">Ajustes</p>'+
+        '<div class="field"><label>Nombre del evento</label><input type="text" id="evtTitle" value="'+esc(CFG.eventTitle)+'"></div>'+
+        '<div class="field"><label>PIN de acceso (4 dígitos)</label><input type="text" id="pinIn" maxlength="4" value="'+esc(CFG.pin)+'"></div>'+
+        '<button class="btn-sm btn-dark" id="saveCfg">Guardar ajustes</button>'+
       '</div>'+
 
-      '<div class="panel blue">'+
-        '<div class="pill" style="background:#fff;color:#2962ff">Exportar / Datos</div>'+
-        '<p class="mini-note" style="color:#fff;opacity:.9;margin-top:10px">Genera un Excel con el mismo formato que “Encuesta de satisfacción Expo PyME.xlsx” (49 columnas). El premio va en custom_1.</p>'+
-        '<div class="row2" style="margin-bottom:12px">'+
-          '<button class="bbtn small alt" id="exportBtn">⬇ EXPORTAR EXCEL</button>'+
-          '<button class="bbtn small" id="clearBtn" style="background:#ff5252;color:#fff">🗑 BORRAR HISTÓRICO</button>'+
+      '<div class="card">'+
+        '<p class="ctag">Exportar / Datos</p>'+
+        '<p class="mini-note">Genera un Excel con el mismo formato que “Encuesta de satisfacción Expo PyME.xlsx” (49 columnas). El premio va en custom_1.</p>'+
+        '<div class="row2">'+
+          '<button class="btn-sm btn-dark" id="exportBtn">⬇ Exportar Excel</button>'+
+          '<button class="btn-sm btn-danger" id="clearBtn">🗑 Borrar histórico</button>'+
         '</div>'+
       '</div>'+
 
-      '<div style="text-align:center"><a class="back" id="exitAdmin">← Salir al inicio</a></div>'+
-    '</div></div>');
-  show(n);
+      '<div style="text-align:center;max-width:720px;margin:0 auto"><a class="back" id="exitAdmin">← Salir al inicio</a></div>'+
+    '</div>');
+  show(n,true);
 
   // editar premios
   n.querySelectorAll("#prizeBody input").forEach(function(inp){
