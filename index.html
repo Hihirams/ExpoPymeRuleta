@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Expo PyME · Encuesta + Ruleta</title>
+<style>
+/* ============================================================
+   BASE
+   ============================================================ */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:#1a1d21;background:#f4f5f7;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:16px}
+.hidden{display:none !important}
+.app{min-height:100%;display:flex;flex-direction:column}
+
+/* ============================================================
+   ESTILO CLARO / MINIMALISTA  (encuesta)  — inspirado en tienda
+   Paleta neutra cálida, marquee superior, navbar en píldora,
+   tipografía fina y mucho aire.
+   ============================================================ */
+.min{max-width:900px;margin:0 auto;width:100%;padding:0 20px 120px}
+
+/* Marquee superior */
+.marquee{position:fixed;top:0;left:0;right:0;height:34px;background:#eceae3;border-bottom:1px solid #e3e0d7;overflow:hidden;display:flex;align-items:center;z-index:60}
+.marquee .track{display:inline-flex;white-space:nowrap;animation:marq 30s linear infinite;will-change:transform}
+.marquee .track span{padding:0 4px;color:#98948a;font-size:10.5px;letter-spacing:.32em;text-transform:uppercase;font-weight:600}
+@keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* Navbar flotante en píldora */
+.navpill{max-width:860px;margin:52px auto 0;background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid #e7e4dc;border-radius:999px;padding:11px 14px 11px 22px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 30px rgba(40,38,34,.07)}
+.navpill .logo{display:flex;align-items:center;gap:10px}
+.navpill .mark{width:30px;height:30px;border-radius:50%;background:#202226;display:flex;align-items:center;justify-content:center;position:relative}
+.navpill .mark::after{content:"";width:9px;height:9px;border-radius:50%;background:#fff}
+.navpill .mark::before{content:"";position:absolute;width:4px;height:4px;border-radius:50%;background:#202226;z-index:2}
+.navpill .name{font-weight:700;font-size:15px;color:#23262b;letter-spacing:.2px}
+.navpill .name small{font-weight:400;color:#9a968c;font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin-left:2px}
+.navpill .navlinks{display:flex;gap:26px}
+.navpill .navlinks span{font-size:13px;color:#7c7a73;letter-spacing:.02em}
+.navpill .navlinks span.act{color:#23262b;font-weight:600}
+@media(max-width:680px){.navpill .navlinks{display:none}}
+
+/* Progreso */
+.progress{max-width:860px;margin:18px auto 30px;height:3px;background:#e5e2d9;border-radius:99px;overflow:hidden}
+.progress > span{display:block;height:100%;background:#23262b;width:0;transition:width .4s ease}
+
+/* Tarjeta */
+.card{background:#fff;border:1px solid #ece9e1;border-radius:22px;padding:38px 34px;box-shadow:0 12px 40px rgba(35,38,43,.05);max-width:720px;margin:0 auto}
+.step-tag{font-size:11px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:#a5a096;margin:0 0 12px}
+.q{font-size:24px;font-weight:500;margin:0 0 6px;color:#23262b;letter-spacing:-.015em;line-height:1.25}
+.q.sm{font-size:18px;margin-top:34px}
+.hint{color:#8f8c84;font-size:14px;margin:0 0 22px}
+
+.field{margin:0 0 18px}
+.field label{display:block;font-size:12px;font-weight:600;color:#6c6a63;margin:0 0 7px;letter-spacing:.04em}
+.field .opt{color:#b3afa4;font-weight:400}
+.field input[type=text],.field input[type=email],.field input[type=tel],.field input[type=number],.field select,.field textarea{
+  width:100%;padding:13px 15px;border:1px solid #e2dfd6;border-radius:13px;background:#fbfaf7;color:#23262b;outline:none;transition:border .15s,box-shadow .15s,background .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#23262b;background:#fff;box-shadow:0 0 0 3px rgba(35,38,43,.07)}
+.field textarea{min-height:92px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+
+/* Escala de botones 0-10 / 1-10 */
+.scale{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
+.scale button{
+  min-width:46px;height:46px;padding:0 6px;border:1px solid #e4e1d8;background:#fbfaf7;border-radius:12px;
+  font-weight:600;color:#5c5a53;font-size:15px;transition:.12s;
+}
+.scale button:hover{border-color:#c3bfb2;background:#fff}
+.scale button.on{background:#23262b;border-color:#23262b;color:#fff;box-shadow:0 4px 14px rgba(35,38,43,.22)}
+.scale-ends{display:flex;justify-content:space-between;font-size:11px;color:#b3afa4;margin-top:6px;letter-spacing:.04em}
+
+/* Opciones tipo radio / checkbox */
+.choices{display:flex;flex-direction:column;gap:10px;margin:4px 0 4px}
+.opt-row{
+  display:flex;align-items:center;gap:14px;border:1px solid #e6e3da;border-radius:14px;padding:15px 16px;background:#fbfaf7;
+  cursor:pointer;transition:.12s;user-select:none;
+}
+.opt-row:hover{border-color:#c9c5b8;background:#fff}
+.opt-row.on{border-color:#23262b;background:#f6f5f1}
+.opt-row .box{
+  width:20px;height:20px;flex:0 0 auto;border:2px solid #cfccc0;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:.12s;
+}
+.opt-row.check .box{border-radius:6px}
+.opt-row.on .box{border-color:#23262b;background:#23262b}
+.opt-row.on .box::after{content:"";width:8px;height:8px;background:#fff;border-radius:inherit}
+.opt-row span{font-size:15px;color:#3a382f;font-weight:400}
+
+.rating-row{display:flex;flex-direction:column;gap:8px;padding:18px 0;border-top:1px solid #f0ede4}
+.rating-row:first-of-type{border-top:none}
+.rating-row .rlabel{font-weight:500;font-size:15px;color:#3a382f}
+
+.emp-block{border:1px solid #ece9e1;border-radius:16px;padding:18px;margin-bottom:14px;background:#fbfaf7}
+.emp-block h4{margin:0 0 12px;font-size:11px;color:#a5a096;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+
+.nav{display:flex;gap:12px;margin-top:32px}
+.btn{
+  border:none;border-radius:999px;padding:15px 28px;font-weight:600;font-size:15px;letter-spacing:.01em;transition:.15s;
+}
+.btn-primary{background:#23262b;color:#fff;flex:1;box-shadow:0 8px 22px rgba(35,38,43,.2)}
+.btn-primary:hover{background:#34383e}
+.btn-ghost{background:#fff;color:#5c5a53;border:1px solid #e2dfd6}
+.btn-ghost:hover{border-color:#c3bfb2}
+.btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+
+.cog{position:fixed;top:44px;right:16px;z-index:55;width:40px;height:40px;border-radius:50%;border:1px solid #e3e0d7;background:rgba(255,255,255,.85);color:#8f8c84;font-size:17px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.cog:hover{color:#23262b;border-color:#c3bfb2}
+
+/* Bienvenida (hero) / gracias */
+.herowrap{max-width:860px;margin:22px auto 0;border-radius:28px;overflow:hidden;
+  background:linear-gradient(135deg,#d9dbdf 0%,#b9bcc2 48%,#e7e4de 100%);
+  min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:64px 28px;position:relative}
+.herowrap::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 40%,transparent 40%,rgba(60,62,66,.18) 100%);pointer-events:none}
+.herowrap .htitle{font-size:clamp(58px,12vw,132px);font-weight:300;color:#fff;letter-spacing:-.04em;line-height:.92;margin:0;text-shadow:0 6px 30px rgba(30,32,36,.22);position:relative;z-index:1}
+.herowrap .hsub{margin:20px 0 34px;color:#f4f5f6;font-size:clamp(12px,2.4vw,16px);letter-spacing:.5em;text-transform:uppercase;font-weight:500;padding-left:.5em;position:relative;z-index:1}
+.btn-hero{background:#fff;color:#23262b;border:none;border-radius:999px;padding:17px 44px;font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;box-shadow:0 14px 34px rgba(0,0,0,.16);transition:.15s;position:relative;z-index:1}
+.btn-hero:hover{transform:translateY(-1px);box-shadow:0 18px 40px rgba(0,0,0,.2)}
+.hero{text-align:center;padding:20px 0 0}
+.hero h2{font-size:clamp(34px,7vw,52px);margin:0 0 10px;letter-spacing:-.03em;color:#23262b;font-weight:300}
+.hero p{color:#8f8c84;font-size:16px;max-width:460px;margin:0 auto 32px;line-height:1.6}
+.check-ic{width:88px;height:88px;border-radius:50%;background:#eceae3;color:#23262b;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 26px;border:1px solid #e3e0d7}
+
+/* ============================================================
+   ESTILO BRUTALISM  (ruleta + admin)
+   ============================================================ */
+.brutal{
+  background:#f7d417;color:#111;min-height:100vh;
+  font-family:"Courier New",ui-monospace,monospace;
+  padding:24px 18px 60px;display:flex;flex-direction:column;align-items:center;
+}
+.brutal .bwrap{width:100%;max-width:560px}
+.brutal h2{
+  font-size:34px;font-weight:900;text-transform:uppercase;letter-spacing:-1px;margin:6px 0 2px;line-height:.95;
+  -webkit-text-stroke:1px #111;
+}
+.brutal .sub{font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:2px;margin:0 0 20px}
+.brutal .panel{background:#fff;border:4px solid #111;box-shadow:8px 8px 0 #111;padding:18px;margin-bottom:18px}
+.brutal .panel.red{background:#ff5252;color:#fff}
+.brutal .panel.blue{background:#2962ff;color:#fff}
+
+.wheel-stage{position:relative;width:340px;height:340px;margin:6px auto 4px;max-width:88vw}
+@media(max-width:400px){.wheel-stage{width:300px;height:300px}}
+.wheel-stage svg{display:block;width:100%;height:100%;filter:drop-shadow(6px 6px 0 #111)}
+#wheelGroup{transform-origin:50% 50%;transition:transform 5s cubic-bezier(.17,.67,.16,1)}
+.pointer{
+  position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:5;
+  width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:34px solid #111;
+}
+.hub{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
+  width:54px;height:54px;border-radius:50%;background:#111;border:4px solid #fff;
+  display:flex;align-items:center;justify-content:center;color:#f7d417;font-weight:900;font-size:11px;text-align:center;
+}
+.bbtn{
+  display:block;width:100%;background:#111;color:#f7d417;border:4px solid #111;
+  font-family:inherit;font-weight:900;text-transform:uppercase;font-size:22px;letter-spacing:2px;
+  padding:18px;box-shadow:6px 6px 0 #b89e00;transition:.06s;
+}
+.bbtn:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #b89e00}
+.bbtn:disabled{opacity:.45;box-shadow:none}
+.bbtn.alt{background:#fff;color:#111}
+.bbtn.small{font-size:14px;padding:12px}
+.brutal .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.result{
+  text-align:center;background:#111;color:#f7d417;border:4px solid #111;padding:22px;margin:14px 0;
+  box-shadow:8px 8px 0 #ff5252;
+}
+.result .lbl{font-size:12px;letter-spacing:3px;font-weight:700;text-transform:uppercase;opacity:.8}
+.result .prize{font-size:30px;font-weight:900;text-transform:uppercase;margin:6px 0 0;line-height:1;-webkit-text-stroke:.5px #f7d417}
+.result.nolose{box-shadow:8px 8px 0 #2962ff}
+
+/* Admin */
+.admin-field{margin-bottom:14px}
+.admin-field label{display:block;font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:1px;margin-bottom:5px}
+.admin-field input,.admin-field textarea{width:100%;padding:10px;border:3px solid #111;background:#fff;color:#111;font-family:inherit;font-weight:700}
+.prize-tbl{width:100%;border-collapse:collapse;margin-bottom:8px}
+.prize-tbl th{font-size:11px;text-transform:uppercase;letter-spacing:1px;text-align:left;padding:4px 6px;border-bottom:3px solid #111}
+.prize-tbl td{padding:4px 4px}
+.prize-tbl input{width:100%;border:2px solid #111;padding:8px 6px;font-family:inherit;font-weight:700;background:#fff}
+.prize-tbl input.num{text-align:center}
+.prize-tbl .del{background:#ff5252;color:#fff;border:2px solid #111;font-weight:900;width:36px;height:36px;font-size:16px}
+.pill{display:inline-block;background:#111;color:#f7d417;font-size:11px;font-weight:700;padding:3px 9px;text-transform:uppercase;letter-spacing:1px}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+.stat{background:#111;color:#f7d417;padding:14px;text-align:center}
+.stat b{display:block;font-size:30px;line-height:1}
+.stat span{font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.pinpad{max-width:280px;margin:40px auto}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin:18px 0}
+.pin-dots i{width:16px;height:16px;border:3px solid #111;border-radius:50%}
+.pin-dots i.f{background:#111}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.keypad button{background:#fff;border:3px solid #111;font-weight:900;font-size:22px;padding:16px;font-family:inherit;box-shadow:3px 3px 0 #111}
+.keypad button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #111}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#111;color:#f7d417;font-weight:700;padding:12px 22px;z-index:80;border:3px solid #f7d417;font-family:"Courier New",monospace;box-shadow:5px 5px 0 rgba(0,0,0,.3)}
+.mini-note{font-size:12px;color:#6b7280;margin-top:6px}
+.brutal .mini-note{color:#111;font-weight:700;opacity:.7}
+.brutal a.back{display:inline-block;margin-top:6px;color:#111;font-weight:900;text-decoration:underline;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="root" class="app"></div>
+<button class="cog" id="cogBtn" title="Configuración">⚙</button>
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* ================================================================
+   EXPO PYME · Encuesta de satisfacción + Ruleta (offline)
+   - Encuesta: estilo minimalista/corporativo, 3 ramas (rol).
+   - Ruleta: estilo brutalism, con panel de configuración (PIN).
+   - Guarda histórico en el navegador y exporta a Excel con el
+     MISMO layout que "Encuesta de satisfacción Expo PyME.xlsx"
+     (49 columnas, encabezado de 2 filas, datos desde la fila 3).
+   - El premio ganado se guarda en la columna custom_1.
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1) CONFIGURACIÓN EDITABLE  (opciones de la encuesta)
+   Las opciones de "qué gustó más/menos" y "perfiles" no venían en
+   el archivo; puedes ajustarlas aquí o pásame las exactas.
+   ---------------------------------------------------------------- */
+var EMPRESAS = ["ALLIAX","CEMEX","COFLEX","CUPRUM","FINSA","INTERNATIONAL",
+  "KANDELIUM","LAMOSA","MAGNEKON","RAGASA","SIGMA","STANLEY BLACK & DECKER",
+  "TECONNEX","TERNIUM","VIAKABLE","VITRO","YOMP"];
+
+var OPC_GUSTO_MAS = ["Sistema de citas","Lugar e instalaciones","Atención del personal",
+  "Organización del evento","Ponentes y expositores","Networking / contactos"];
+var OPC_GUSTO_MENOS = ["Espacio y Capacidad","Pocas CITAS o contactos","Horario del evento",
+  "Registro del evento","Organización"];
+var OPC_PERFILES = ["Totalmente adecuados","Bien adecuados","Medianamente adecuados",
+  "Poco adecuados","Nada adecuados"];
+
+var BENEFICIOS = [
+  {k:"contactos",   t:"Acceso a contactos que no obtendría por otra parte"},
+  {k:"experiencia", t:"Experiencia"},
+  {k:"habilidades", t:"Habilidades empresariales"},
+  {k:"informacion", t:"Información sobre el mercado y competidores"},
+  {k:"ideas",       t:"Ideas de innovación"},
+  {k:"crecimiento", t:"Crecimiento para mi empresa"}
+];
+
+var DEFAULT_PRIZES = [
+  {name:"Taza Expo PyME",   weight:30, stock:20, isPrize:true},
+  {name:"Bolsa ecológica",  weight:25, stock:15, isPrize:true},
+  {name:"Playera",          weight:18, stock:10, isPrize:true},
+  {name:"Termo",            weight:10, stock:6,  isPrize:true},
+  {name:"Gift Card $500",   weight:4,  stock:2,  isPrize:true},
+  {name:"Sigue participando",weight:35,stock:99999, isPrize:false}
+];
+
+/* ----------------------------------------------------------------
+   2) ALMACENAMIENTO (localStorage)
+   ---------------------------------------------------------------- */
+var LS_CFG="expopyme_cfg_v1", LS_HIST="expopyme_hist_v1";
+var WHEEL_COLORS=["#111111","#ff5252","#2962ff","#f7d417","#111111","#00c853","#ff5252","#2962ff","#f7d417","#00c853","#111111","#ff9100"];
+
+function loadCfg(){
+  var d={pin:"1234", eventTitle:"Expo PyME", prizes:DEFAULT_PRIZES.map(function(p){return Object.assign({},p);})};
+  try{var s=JSON.parse(localStorage.getItem(LS_CFG));if(s&&s.prizes){return Object.assign(d,s);}}catch(e){}
+  return d;
+}
+function saveCfg(c){localStorage.setItem(LS_CFG,JSON.stringify(c));}
+function loadHist(){try{return JSON.parse(localStorage.getItem(LS_HIST))||[];}catch(e){return [];}}
+function saveHist(h){localStorage.setItem(LS_HIST,JSON.stringify(h));}
+
+var CFG=loadCfg();
+
+/* ----------------------------------------------------------------
+   3) ESTADO
+   ---------------------------------------------------------------- */
+var root=document.getElementById("root");
+var A={};            // respuestas de la encuesta en curso
+var stepIndex=0;     // paso actual de la encuesta
+var wonPrize=null;   // premio ganado en la ruleta
+
+function resetSurvey(){
+  A={ beneficios:{}, emp:[{},{},{}] };
+  stepIndex=0; wonPrize=null;
+}
+
+/* Pasos: los comunes + rama según rol.
+   Devuelve arreglo de ids de paso. */
+function buildSteps(){
+  var s=["contacto","recomienda","gusto","beneficios","rol"];
+  if(A.rol==="Proveedor") s.push("prov");
+  else if(A.rol==="Comprador") s.push("comp");
+  s.push("comentario");
+  return s;
+}
+
+/* ----------------------------------------------------------------
+   4) UTILIDADES DOM
+   ---------------------------------------------------------------- */
+function el(html){var d=document.createElement("div");d.innerHTML=html.trim();return d.firstChild;}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function toast(msg){var t=document.getElementById("toast");t.className="toast";t.textContent=msg;clearTimeout(t._t);t._t=setTimeout(function(){t.className="";},2200);}
+function show(node){root.innerHTML="";root.appendChild(node);document.getElementById("cogBtn").classList.remove("hidden");window.scrollTo(0,0);}
+
+/* Marquee + navbar en píldora (reutilizable en la encuesta) */
+function marqueeHTML(){
+  var msg=["Expo PyME","Encuesta de satisfacción","Tu opinión cuenta","Gracias por participar","Tecnología & Seguridad"];
+  var one=msg.map(function(m){return '<span>'+esc(m)+' &nbsp;·</span>';}).join("");
+  return '<div class="marquee"><div class="track">'+one+one+one+one+'</div></div>';
+}
+function navHTML(active){
+  var links=["Inicio","Encuesta","Ruleta","Nosotros"];
+  var l=links.map(function(t){return '<span class="'+(t===active?"act":"")+'">'+t+'</span>';}).join("");
+  return '<div class="navpill">'+
+    '<div class="logo"><div class="mark"></div><div class="name">'+esc(CFG.eventTitle)+' <small>Encuesta</small></div></div>'+
+    '<div class="navlinks">'+l+'</div>'+
+  '</div>';
+}
+
+/* ================================================================
+   5) BIENVENIDA
+   ================================================================ */
+function screenWelcome(){
+  document.body.style.background="#f3f1ec";
+  var n=el(
+    '<div class="min">'+
+      marqueeHTML()+
+      navHTML("Inicio")+
+      '<div class="herowrap">'+
+        '<h2 class="htitle">'+esc(CFG.eventTitle)+'</h2>'+
+        '<p class="hsub">Tecnología &amp; Seguridad</p>'+
+        '<button class="btn-hero" id="startBtn">Comenzar encuesta</button>'+
+      '</div>'+
+      '<div class="hero" style="padding-top:44px">'+
+        '<p>Cuéntanos cómo te fue en el evento. Son solo unos minutos y al terminar podrás <b>girar la ruleta</b> por un premio.</p>'+
+      '</div>'+
+    '</div>');
+  show(n);
+  n.querySelector("#startBtn").onclick=function(){resetSurvey();renderSurvey();};
+}
+
+/* ================================================================
+   6) ENCUESTA (minimalista, multipaso)
+   ================================================================ */
+function renderSurvey(){
+  document.body.style.background="#f4f5f7";
+  var steps=buildSteps();
+  var id=steps[stepIndex];
+  var pct=Math.round((stepIndex)/(steps.length)*100);
+  var body="";
+  if(id==="contacto")    body=viewContacto();
+  else if(id==="recomienda") body=viewRecomienda();
+  else if(id==="gusto")  body=viewGusto();
+  else if(id==="beneficios") body=viewBeneficios();
+  else if(id==="rol")    body=viewRol();
+  else if(id==="prov")   body=viewProveedor();
+  else if(id==="comp")   body=viewComprador();
+  else if(id==="comentario") body=viewComentario();
+
+  var lastReal=(id==="comentario");
+  var nav=
+    '<div class="nav">'+
+      (stepIndex>0?'<button class="btn btn-ghost" id="backBtn">Atrás</button>':'')+
+      '<button class="btn btn-primary" id="nextBtn">'+(lastReal?"Finalizar y girar 🎡":"Continuar")+'</button>'+
+    '</div>';
+
+  var n=el(
+    '<div class="min">'+
+      marqueeHTML()+
+      navHTML("Encuesta")+
+      '<div class="progress"><span style="width:'+pct+'%"></span></div>'+
+      '<div class="card">'+body+nav+'</div>'+
+    '</div>');
+  show(n);
+  wireSurvey(n,id);
+  var back=n.querySelector("#backBtn"); if(back) back.onclick=function(){stepIndex--;renderSurvey();};
+  n.querySelector("#nextBtn").onclick=function(){
+    if(!validateStep(id)) return;
+    if(lastReal){ renderRoulette(); return; }
+    stepIndex++; renderSurvey();
+  };
+}
+
+/* --- Vistas de cada paso --- */
+function viewContacto(){
+  function f(label,key,type,opt){
+    return '<div class="field"><label>'+label+(opt?' <span class="opt">(opcional)</span>':'')+'</label>'+
+      '<input type="'+(type||"text")+'" data-k="'+key+'" value="'+esc(A[key]||"")+'"></div>';
+  }
+  return '<p class="step-tag">Paso 1</p><h3 class="q">Información de contacto</h3>'+
+    '<p class="hint">Confidencial. Solo la usamos para dar seguimiento y entregar tu premio.</p>'+
+    '<div class="grid2">'+f("Nombre","nombre","text",false)+f("Empresa","empresa","text",false)+'</div>'+
+    '<div class="grid2">'+f("Correo electrónico","correo","email",false)+f("Número de teléfono","telefono","tel",false)+'</div>'+
+    '<div class="grid2">'+f("Ciudad/Localidad","ciudad","text",true)+f("Estado/Provincia","estado","text",true)+'</div>'+
+    '<div class="grid2">'+f("Dirección","direccion","text",true)+f("Dirección 2","direccion2","text",true)+'</div>'+
+    '<div class="grid2">'+f("Código postal","cp","text",true)+f("País","pais","text",true)+'</div>';
+}
+function scale(key,min,max,leftLbl,rightLbl){
+  var b='<div class="scale" data-scale="'+key+'">';
+  for(var i=min;i<=max;i++) b+='<button data-v="'+i+'" class="'+(A[key]===i?"on":"")+'">'+i+'</button>';
+  b+='</div><div class="scale-ends"><span>'+leftLbl+'</span><span>'+rightLbl+'</span></div>';
+  return b;
+}
+function viewRecomienda(){
+  var aspects=[["atencion","Atención del personal"],["organizacion","Organización"],["lugar","Lugar del evento"],["registro","Registro del evento"]];
+  var rr="";
+  aspects.forEach(function(a){rr+='<div class="rating-row"><div class="rlabel">'+a[1]+'</div>'+scale(a[0],1,10,"1 · muy malo","10 · excelente")+'</div>';});
+  return '<p class="step-tag">Paso 2</p><h3 class="q">En una escala del 0 al 10, ¿qué probabilidad hay de que recomiende este evento?</h3>'+
+    '<p class="hint">0 = nada probable · 10 = muy probable</p>'+
+    scale("nps",0,10,"Nada probable","Muy probable")+
+    '<h3 class="q sm">Evalúa los siguientes aspectos <span style="font-weight:500;color:#6b7280">(1 muy malo · 10 excelente)</span></h3>'+
+    rr;
+}
+function radioList(name,options,selected,withOther){
+  var b='<div class="choices" data-radio="'+name+'">';
+  options.forEach(function(o){b+='<div class="opt-row'+(selected===o?" on":"")+'" data-v="'+esc(o)+'"><div class="box"></div><span>'+esc(o)+'</span></div>';});
+  if(withOther){var on=selected==="Otro (especifique)";b+='<div class="opt-row'+(on?" on":"")+'" data-v="Otro (especifique)"><div class="box"></div><span>Otro (especifique)</span></div>';}
+  b+='</div>';
+  return b;
+}
+function viewGusto(){
+  return '<p class="step-tag">Paso 3</p><h3 class="q">¿Qué fue lo que más le gustó de este evento?</h3>'+
+    radioList("gustoMas",OPC_GUSTO_MAS,A.gustoMas,true)+
+    '<div class="field'+(A.gustoMas==="Otro (especifique)"?'':' hidden')+'" data-other="gustoMas"><label>Otro (especifique)</label><input type="text" data-k="gustoMasOtro" value="'+esc(A.gustoMasOtro||"")+'"></div>'+
+    '<h3 class="q sm">¿Qué fue lo que menos le gustó de este evento?</h3>'+
+    radioList("gustoMenos",OPC_GUSTO_MENOS,A.gustoMenos,true)+
+    '<div class="field'+(A.gustoMenos==="Otro (especifique)"?'':' hidden')+'" data-other="gustoMenos"><label>Otro (especifique)</label><input type="text" data-k="gustoMenosOtro" value="'+esc(A.gustoMenosOtro||"")+'"></div>';
+}
+function viewBeneficios(){
+  var b='<div class="choices" data-checks="beneficios">';
+  BENEFICIOS.forEach(function(o){b+='<div class="opt-row check'+(A.beneficios[o.k]?" on":"")+'" data-v="'+o.k+'"><div class="box"></div><span>'+esc(o.t)+'</span></div>';});
+  b+='</div>';
+  return '<p class="step-tag">Paso 4</p><h3 class="q">¿Cuáles considera que son los beneficios que adquirió al participar en este evento?</h3>'+
+    '<p class="hint">Puede elegir varios.</p>'+b+
+    '<div class="field"><label>Otro (especifique) <span class="opt">(opcional)</span></label><input type="text" data-k="beneficioOtro" value="'+esc(A.beneficioOtro||"")+'"></div>';
+}
+function viewRol(){
+  return '<p class="step-tag">Paso 5</p><h3 class="q">¿Cuál fue su rol de participación en el evento?</h3>'+
+    '<p class="hint">Según tu respuesta te haremos unas últimas preguntas.</p>'+
+    radioList("rol",["Proveedor","Comprador","Deseo terminar esta encuesta"],A.rol,false);
+}
+function viewProveedor(){
+  var blocks="";
+  for(var i=0;i<3;i++){
+    var sel=A.emp[i]||{};
+    var opts='<option value="">— Selecciona —</option>';
+    EMPRESAS.forEach(function(e){opts+='<option value="'+esc(e)+'"'+(sel.name===e?" selected":"")+'>'+esc(e)+'</option>';});
+    blocks+='<div class="emp-block"><h4>Empresa '+(i+1)+(i>0?' (opcional)':'')+'</h4>'+
+      '<div class="field"><label>Empresa compradora</label><select data-emp="'+i+'" data-emp-f="name">'+opts+'</select></div>'+
+      '<div class="field"><label>Calificación de la experiencia</label>'+scaleEmp(i,sel.cal)+'</div></div>';
+  }
+  return '<p class="step-tag">Proveedor</p><h3 class="q">Indica con qué empresas compradoras tuviste una mejor experiencia y califícala (1 muy mala · 10 excelente).</h3>'+
+    blocks+
+    '<h3 class="q sm">¿Qué sugerencias de mejora le darías a cada uno?</h3>'+
+    '<div class="field"><label>Al comité organizador del evento</label><textarea data-k="sugComiteProv">'+esc(A.sugComiteProv||"")+'</textarea></div>'+
+    '<div class="field"><label>A los compradores que te atendieron hoy</label><textarea data-k="sugCompradores">'+esc(A.sugCompradores||"")+'</textarea></div>';
+}
+function scaleEmp(i,val){
+  var b='<div class="scale" data-scale-emp="'+i+'">';
+  for(var v=1;v<=10;v++) b+='<button data-v="'+v+'" class="'+(val===v?"on":"")+'">'+v+'</button>';
+  b+='</div>';
+  return b;
+}
+function viewComprador(){
+  return '<p class="step-tag">Comprador</p><h3 class="q">¿En qué medida los perfiles con los que interactuó fueron los adecuados para sus requerimientos?</h3>'+
+    radioList("perfiles",OPC_PERFILES,A.perfiles,false)+
+    '<div class="field"><label>¿Cuántos de los proveedores que atendiste hoy te parecieron potenciales? (número aproximado)</label>'+
+      '<input type="number" min="0" data-k="numProveedores" value="'+esc(A.numProveedores||"")+'"></div>'+
+    '<h3 class="q sm">¿Qué sugerencias de mejora le darías a cada uno?</h3>'+
+    '<div class="field"><label>Al comité organizador del evento</label><textarea data-k="sugComiteComp">'+esc(A.sugComiteComp||"")+'</textarea></div>'+
+    '<div class="field"><label>A los proveedores que atendiste hoy</label><textarea data-k="sugProveedores">'+esc(A.sugProveedores||"")+'</textarea></div>';
+}
+function viewComentario(){
+  return '<p class="step-tag">Último paso</p><h3 class="q">¿Desea agregar algún comentario o sugerencia?</h3>'+
+    '<p class="hint">Opcional. Al finalizar, gira la ruleta 🎡</p>'+
+    '<div class="field"><textarea data-k="comentario" style="min-height:120px">'+esc(A.comentario||"")+'</textarea></div>';
+}
+
+/* --- Enlazar interacciones de la vista --- */
+function wireSurvey(n,id){
+  // inputs de texto
+  n.querySelectorAll("[data-k]").forEach(function(inp){
+    inp.oninput=function(){A[inp.getAttribute("data-k")]=inp.value;};
+  });
+  // escalas simples
+  n.querySelectorAll("[data-scale]").forEach(function(sc){
+    var key=sc.getAttribute("data-scale");
+    sc.querySelectorAll("button").forEach(function(bt){
+      bt.onclick=function(){A[key]=parseInt(bt.getAttribute("data-v"),10);
+        sc.querySelectorAll("button").forEach(function(x){x.classList.remove("on");});bt.classList.add("on");};
+    });
+  });
+  // escalas de empresa (proveedor)
+  n.querySelectorAll("[data-scale-emp]").forEach(function(sc){
+    var i=parseInt(sc.getAttribute("data-scale-emp"),10);
+    sc.querySelectorAll("button").forEach(function(bt){
+      bt.onclick=function(){A.emp[i].cal=parseInt(bt.getAttribute("data-v"),10);
+        sc.querySelectorAll("button").forEach(function(x){x.classList.remove("on");});bt.classList.add("on");};
+    });
+  });
+  // selects de empresa
+  n.querySelectorAll("[data-emp]").forEach(function(sel){
+    var i=parseInt(sel.getAttribute("data-emp"),10);
+    sel.onchange=function(){A.emp[i].name=sel.value;};
+  });
+  // radios
+  n.querySelectorAll("[data-radio]").forEach(function(grp){
+    var name=grp.getAttribute("data-radio");
+    grp.querySelectorAll(".opt-row").forEach(function(rw){
+      rw.onclick=function(){
+        var v=rw.getAttribute("data-v");
+        A[name]=v;
+        grp.querySelectorAll(".opt-row").forEach(function(x){x.classList.remove("on");});rw.classList.add("on");
+        // mostrar/ocultar "otro"
+        var other=n.querySelector('[data-other="'+name+'"]');
+        if(other){ other.classList.toggle("hidden",v!=="Otro (especifique)"); }
+      };
+    });
+  });
+  // checkboxes beneficios
+  n.querySelectorAll('[data-checks="beneficios"] .opt-row').forEach(function(rw){
+    rw.onclick=function(){var k=rw.getAttribute("data-v");A.beneficios[k]=!A.beneficios[k];rw.classList.toggle("on",A.beneficios[k]);};
+  });
+}
+
+function validateStep(id){
+  if(id==="rol" && !A.rol){toast("Selecciona tu rol para continuar");return false;}
+  return true; // el resto es opcional para agilizar el kiosco
+}
+
+/* ================================================================
+   7) RULETA (brutalism)
+   ================================================================ */
+function availablePrizes(){return CFG.prizes.filter(function(p){return (p.stock===null||p.stock>0)&&(parseFloat(p.weight)||0)>0;});}
+
+function pickWeighted(list){
+  var total=list.reduce(function(s,p){return s+(parseFloat(p.weight)||0);},0);
+  var r=Math.random()*total, acc=0;
+  for(var i=0;i<list.length;i++){acc+=(parseFloat(list[i].weight)||0);if(r<=acc)return list[i];}
+  return list[list.length-1];
+}
+
+function renderRoulette(){
+  document.body.style.background="#f7d417";
+  var prizes=CFG.prizes;
+  var n=el(
+    '<div class="brutal"><div class="bwrap">'+
+      '<h2>¡GIRA<br>LA RULETA!</h2>'+
+      '<p class="sub">'+esc(CFG.eventTitle)+' · Premios</p>'+
+      '<div class="panel" style="padding:10px">'+
+        '<div class="wheel-stage"><div class="pointer"></div>'+wheelSVG(prizes)+'<div class="hub">EXPO<br>PYME</div></div>'+
+      '</div>'+
+      '<button class="bbtn" id="spinBtn">GIRAR</button>'+
+      '<div id="spinResult"></div>'+
+    '</div></div>');
+  show(n);
+  var group=n.querySelector("#wheelGroup");
+  var btn=n.querySelector("#spinBtn");
+  var res=n.querySelector("#spinResult");
+  var totalRot=0, spinning=false;
+
+  btn.onclick=function(){
+    if(spinning) return;
+    var avail=availablePrizes();
+    if(!avail.length){toast("No hay premios configurados");return;}
+    spinning=true;btn.disabled=true;res.innerHTML="";
+    var winner=pickWeighted(avail);
+    var idx=prizes.indexOf(winner);
+    var N=prizes.length, seg=360/N;
+    // ángulo para que el CENTRO del segmento ganador quede arriba (puntero)
+    var center=idx*seg+seg/2;
+    var jitter=(Math.random()-0.5)*seg*0.6;
+    var target=(360-center)-jitter;
+    totalRot+=360*6+(((target- (totalRot%360))%360)+360)%360;
+    group.style.transform="rotate("+totalRot+"deg)";
+    setTimeout(function(){
+      spinning=false;
+      wonPrize=winner;
+      showSpinResult(res,winner);
+    },5200);
+  };
+}
+
+function wheelSVG(prizes){
+  var N=prizes.length, seg=360/N, cx=200, cy=200, r=196;
+  var paths="", labels="";
+  for(var i=0;i<N;i++){
+    var a0=(i*seg-90)*Math.PI/180, a1=((i+1)*seg-90)*Math.PI/180;
+    var x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0);
+    var x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+    var large=seg>180?1:0;
+    var col=WHEEL_COLORS[i%WHEEL_COLORS.length];
+    paths+='<path d="M'+cx+','+cy+' L'+x0.toFixed(1)+','+y0.toFixed(1)+' A'+r+','+r+' 0 '+large+',1 '+x1.toFixed(1)+','+y1.toFixed(1)+' Z" fill="'+col+'" stroke="#111" stroke-width="3"/>';
+    var mid=(i*seg+seg/2-90)*Math.PI/180;
+    var lr=r*0.62, lx=cx+lr*Math.cos(mid), ly=cy+lr*Math.sin(mid);
+    var rot=(i*seg+seg/2);
+    var light=(col==="#111111"||col==="#2962ff"||col==="#ff5252");
+    var nm=prizes[i].name; if(nm.length>16) nm=nm.slice(0,15)+"…";
+    labels+='<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" fill="'+(light?"#fff":"#111")+'" font-size="13" font-weight="800" font-family="Courier New, monospace" text-anchor="middle" transform="rotate('+rot.toFixed(1)+','+lx.toFixed(1)+','+ly.toFixed(1)+')">'+esc(nm)+'</text>';
+  }
+  return '<svg viewBox="0 0 400 400"><g id="wheelGroup"><circle cx="200" cy="200" r="198" fill="#111"/>'+paths+labels+'</g></svg>';
+}
+
+function showSpinResult(res,winner){
+  if(winner.isPrize){
+    res.innerHTML='<div class="result"><div class="lbl">¡Ganaste!</div><div class="prize">'+esc(winner.name)+'</div></div>'+
+      '<button class="bbtn alt" id="claimBtn">GUARDAR Y TERMINAR</button>';
+  }else{
+    res.innerHTML='<div class="result nolose"><div class="lbl">Resultado</div><div class="prize">'+esc(winner.name)+'</div></div>'+
+      '<button class="bbtn alt" id="claimBtn">GUARDAR Y TERMINAR</button>';
+  }
+  res.querySelector("#claimBtn").onclick=function(){ commitResponse(winner); };
+}
+
+/* ================================================================
+   8) GUARDAR RESPUESTA EN EL HISTÓRICO
+   ================================================================ */
+function commitResponse(winner){
+  var now=new Date();
+  var entry=Object.assign({}, A);
+  entry.emp=A.emp;
+  entry.premio = winner.isPrize ? winner.name : "";     // custom_1
+  entry.premioLanded = winner.name;                     // referencia interna
+  entry.respondentId = String(Date.now())+String(Math.floor(Math.random()*900+100));
+  entry.dateCreated = now.toISOString();
+  entry.dateModified = now.toISOString();
+  // descontar stock del premio real
+  if(winner.isPrize && winner.stock!==null && winner.stock>0){
+    var idx=CFG.prizes.indexOf(winner);
+    if(idx>=0){CFG.prizes[idx].stock=Math.max(0,CFG.prizes[idx].stock-1);saveCfg(CFG);}
+  }
+  var h=loadHist(); h.push(entry); saveHist(h);
+  screenThanks();
+}
+
+function screenThanks(){
+  document.body.style.background="#f3f1ec";
+  var n=el(
+    '<div class="min">'+
+      marqueeHTML()+
+      navHTML("Inicio")+
+      '<div class="hero" style="padding-top:70px">'+
+        '<div class="check-ic">✓</div>'+
+        '<h2>¡Listo!</h2>'+
+        '<p>Tu respuesta quedó registrada'+(wonPrize&&wonPrize.isPrize?' y tu premio: <b>'+esc(wonPrize.name)+'</b>':'')+'. ¡Gracias por tu participación!</p>'+
+        '<button class="btn btn-primary" id="againBtn" style="max-width:300px;margin:0 auto">Nueva encuesta</button>'+
+      '</div>'+
+    '</div>');
+  show(n);
+  n.querySelector("#againBtn").onclick=screenWelcome;
+  setTimeout(function(){ if(document.getElementById("againBtn")) screenWelcome(); }, 9000);
+}
+
+/* ================================================================
+   9) ADMIN (PIN + configuración + exportar)  — brutalism
+   ================================================================ */
+function askPin(){
+  document.body.style.background="#f7d417";
+  var entered="";
+  var n=el(
+    '<div class="brutal"><div class="bwrap">'+
+      '<div class="pinpad">'+
+        '<h2 style="text-align:center;font-size:24px">ACCESO</h2>'+
+        '<p class="sub" style="text-align:center">Ingresa el PIN</p>'+
+        '<div class="pin-dots" id="dots"><i></i><i></i><i></i><i></i></div>'+
+        '<div class="keypad" id="kp">'+
+          [1,2,3,4,5,6,7,8,9].map(function(d){return '<button data-d="'+d+'">'+d+'</button>';}).join("")+
+          '<button data-d="back">⌫</button><button data-d="0">0</button><button data-d="ok">OK</button>'+
+        '</div>'+
+        '<div style="text-align:center;margin-top:16px"><a class="back" id="cancel">← Volver</a></div>'+
+      '</div>'+
+    '</div></div>');
+  show(n);
+  var dots=n.querySelectorAll("#dots i");
+  function draw(){dots.forEach(function(dt,i){dt.classList.toggle("f",i<entered.length);});}
+  n.querySelector("#kp").addEventListener("click",function(e){
+    var b=e.target.closest("button"); if(!b)return;
+    var d=b.getAttribute("data-d");
+    if(d==="back"){entered=entered.slice(0,-1);}
+    else if(d==="ok"){ if(entered===CFG.pin){renderAdmin();}else{toast("PIN incorrecto");entered="";} }
+    else if(entered.length<4){entered+=d; if(entered.length===4){ setTimeout(function(){ if(entered===CFG.pin)renderAdmin(); else {toast("PIN incorrecto");entered="";draw();} },150);} }
+    draw();
+  });
+  n.querySelector("#cancel").onclick=screenWelcome;
+}
+
+function renderAdmin(){
+  document.body.style.background="#f7d417";
+  var hist=loadHist();
+  var totalPrizes=hist.filter(function(h){return h.premio;}).length;
+  var rows=CFG.prizes.map(function(p,i){
+    return '<tr>'+
+      '<td><input data-i="'+i+'" data-f="name" value="'+esc(p.name)+'"></td>'+
+      '<td style="width:74px"><input class="num" data-i="'+i+'" data-f="weight" type="number" min="0" value="'+esc(p.weight)+'"></td>'+
+      '<td style="width:80px"><input class="num" data-i="'+i+'" data-f="stock" type="number" min="0" value="'+esc(p.stock)+'"></td>'+
+      '<td style="width:54px;text-align:center"><input type="checkbox" data-i="'+i+'" data-f="isPrize" '+(p.isPrize?"checked":"")+' style="width:20px;height:20px"></td>'+
+      '<td><button class="del" data-del="'+i+'">×</button></td>'+
+    '</tr>';
+  }).join("");
+
+  var n=el(
+    '<div class="brutal"><div class="bwrap">'+
+      '<h2 style="font-size:26px">CONFIG</h2>'+
+      '<p class="sub">Panel de administración</p>'+
+
+      '<div class="statgrid">'+
+        '<div class="stat"><b>'+hist.length+'</b><span>Respuestas</span></div>'+
+        '<div class="stat"><b>'+totalPrizes+'</b><span>Premios entregados</span></div>'+
+      '</div>'+
+
+      '<div class="panel">'+
+        '<div class="pill">Premios de la ruleta</div>'+
+        '<p class="mini-note">Peso = probabilidad relativa. Stock = cantidad disponible. Premio = cuenta como premio ganado (se guarda en custom_1). Desmarca "Premio" para casillas tipo "Sigue participando".</p>'+
+        '<table class="prize-tbl"><thead><tr><th>Nombre</th><th>Peso</th><th>Stock</th><th>Premio</th><th></th></tr></thead>'+
+        '<tbody id="prizeBody">'+rows+'</tbody></table>'+
+        '<button class="bbtn small alt" id="addPrize">+ AGREGAR PREMIO</button>'+
+      '</div>'+
+
+      '<div class="panel">'+
+        '<div class="pill">Ajustes</div>'+
+        '<div class="admin-field" style="margin-top:12px"><label>Nombre del evento</label><input id="evtTitle" value="'+esc(CFG.eventTitle)+'"></div>'+
+        '<div class="admin-field"><label>PIN de acceso (4 dígitos)</label><input id="pinIn" maxlength="4" value="'+esc(CFG.pin)+'"></div>'+
+        '<button class="bbtn small" id="saveCfg">GUARDAR AJUSTES</button>'+
+      '</div>'+
+
+      '<div class="panel blue">'+
+        '<div class="pill" style="background:#fff;color:#2962ff">Exportar / Datos</div>'+
+        '<p class="mini-note" style="color:#fff;opacity:.9;margin-top:10px">Genera un Excel con el mismo formato que “Encuesta de satisfacción Expo PyME.xlsx” (49 columnas). El premio va en custom_1.</p>'+
+        '<div class="row2" style="margin-bottom:12px">'+
+          '<button class="bbtn small alt" id="exportBtn">⬇ EXPORTAR EXCEL</button>'+
+          '<button class="bbtn small" id="clearBtn" style="background:#ff5252;color:#fff">🗑 BORRAR HISTÓRICO</button>'+
+        '</div>'+
+      '</div>'+
+
+      '<div style="text-align:center"><a class="back" id="exitAdmin">← Salir al inicio</a></div>'+
+    '</div></div>');
+  show(n);
+
+  // editar premios
+  n.querySelectorAll("#prizeBody input").forEach(function(inp){
+    inp.onchange=function(){
+      var i=+inp.getAttribute("data-i"), f=inp.getAttribute("data-f");
+      if(f==="isPrize"){CFG.prizes[i].isPrize=inp.checked;}
+      else if(f==="weight"||f==="stock"){CFG.prizes[i][f]=parseFloat(inp.value)||0;}
+      else{CFG.prizes[i][f]=inp.value;}
+      saveCfg(CFG);
+    };
+  });
+  n.querySelectorAll("[data-del]").forEach(function(b){
+    b.onclick=function(){CFG.prizes.splice(+b.getAttribute("data-del"),1);saveCfg(CFG);renderAdmin();};
+  });
+  n.querySelector("#addPrize").onclick=function(){CFG.prizes.push({name:"Nuevo premio",weight:10,stock:10,isPrize:true});saveCfg(CFG);renderAdmin();};
+  n.querySelector("#saveCfg").onclick=function(){
+    CFG.eventTitle=n.querySelector("#evtTitle").value||"Expo PyME";
+    var p=n.querySelector("#pinIn").value.replace(/\D/g,"").slice(0,4); if(p.length===4)CFG.pin=p;
+    saveCfg(CFG);toast("Ajustes guardados");
+  };
+  n.querySelector("#exportBtn").onclick=function(){exportExcel();};
+  n.querySelector("#clearBtn").onclick=function(){
+    if(confirm("¿Borrar TODAS las respuestas del histórico? Esto no se puede deshacer.\n\nSugerencia: exporta primero.")){
+      saveHist([]);toast("Histórico borrado");renderAdmin();
+    }
+  };
+  n.querySelector("#exitAdmin").onclick=screenWelcome;
+}
+
+/* ================================================================
+   10) EXPORTAR A EXCEL  (.xlsx nativo, sin librerías, offline)
+   Replica el layout de SurveyMonkey: 2 filas de encabezado + datos.
+   ================================================================ */
+
+/* Encabezados EXACTOS (49 columnas, A..AW) */
+var HEADER1=[
+  "respondent_id","collector_id","date_created","date_modified","ip_address","email_address","first_name","last_name","custom_1",
+  "Información de contacto (confidencial)","","","","","","","","","",
+  "En una escala del 0 al 10  ¿Qué probabilidad hay de que recomiende este evento?",
+  "Favor de evaluar los siguientes aspectos del evento donde 1 es \"muy malo\" y 10 \"excelente\"","","","",
+  "¿Qué fue lo que más le gustó de este evento?","",
+  "¿Qué fue lo que menos le gustó de este evento?","",
+  "¿Cuáles considera que son los beneficios que adquirió al participar en este evento?","","","","","","",
+  "¿Cuál fue su rol de participación en el evento?",
+  "¿Desea agregar algún comentario o sugerencia?",
+  "Indica con qué empresas compradoras tuviste una mejor experiencia, y califica esa experiencia en una escala del 1 al 10 (donde 1 es \"muy mala\" y 10 es \"excelente\").","","","","","",
+  "¿Qué sugerencias de mejora le darías a cada uno de los siguientes?","",
+  "¿En que medida considera que los perfiles con los que interactuó en el evento, fueron los adecuados para sus requerimientos?",
+  "¿Cuántos de los proveedores que atendiste hoy, te parecieron que podrían ser potenciales? (Número aproximado)",
+  "¿Qué sugerencias de mejora le darías a cada uno de los siguientes?",""
+];
+var HEADER2=[
+  "","","","","","","","","",
+  "Nombre","Empresa","Dirección","Dirección 2","Ciudad/Localidad","Estado/Provincia","Código postal","País","Correo electrónico","Número de teléfono",
+  "Response",
+  "Atención del personal","Organización","Lugar del evento","Registro del evento",
+  "Response","Otro (especifique)",
+  "Response","Otro (especifique)",
+  "Acceso a contactos que no obtendría por otra parte","Experiencia","Habilidades empresariales","Información sobre el mercado y competidores","Ideas de innovación","Crecimiento para mi empresa","Otro (especifique)",
+  "Response",
+  "Open-Ended Response",
+  "1 - Empresa","1 - Calificación","2 - Empresa","2 - Calificación","3 - Empresa","3 - Calificación",
+  "Al comité organizador del evento","A los compradores que te atendieron hoy",
+  "Response",
+  "Open-Ended Response",
+  "Al comité organizador del evento","A los proveedores que atendiste hoy"
+];
+
+function ben(e,k,t){return (e.beneficios&&e.beneficios[k])?t:"";}
+function emp(e,i,f){var x=(e.emp&&e.emp[i])||{};return x[f]!=null?x[f]:"";}
+
+/* Convierte una entrada del histórico en una fila de 49 celdas */
+function rowFromEntry(e){
+  return [
+    e.respondentId||"", "", D(e.dateCreated), D(e.dateModified), "", "", "", "", e.premio||"",
+    e.nombre||"", e.empresa||"", e.direccion||"", e.direccion2||"", e.ciudad||"", e.estado||"", e.cp||"", e.pais||"", e.correo||"", e.telefono||"",
+    num(e.nps),
+    num(e.atencion), num(e.organizacion), num(e.lugar), num(e.registro),
+    e.gustoMas||"", e.gustoMasOtro||"",
+    e.gustoMenos||"", e.gustoMenosOtro||"",
+    ben(e,"contactos","Acceso a contactos que no obtendría por otra parte"),
+    ben(e,"experiencia","Experiencia"),
+    ben(e,"habilidades","Habilidades empresariales"),
+    ben(e,"informacion","Información sobre el mercado y competidores"),
+    ben(e,"ideas","Ideas de innovación"),
+    ben(e,"crecimiento","Crecimiento para mi empresa"),
+    e.beneficioOtro||"",
+    e.rol||"",
+    e.comentario||"",
+    emp(e,0,"name"), num(emp(e,0,"cal")), emp(e,1,"name"), num(emp(e,1,"cal")), emp(e,2,"name"), num(emp(e,2,"cal")),
+    e.sugComiteProv||"", e.sugCompradores||"",
+    e.perfiles||"",
+    e.numProveedores!=null?e.numProveedores:"",
+    e.sugComiteComp||"", e.sugProveedores||""
+  ];
+}
+function num(v){ if(v===""||v==null) return ""; var n=parseFloat(v); return isNaN(n)?v:{__num:n}; }
+function D(iso){ if(!iso) return ""; return {__date:new Date(iso)}; }
+
+function exportExcel(){
+  var hist=loadHist();
+  var rows=hist.map(rowFromEntry);
+  var bytes=buildXlsx([HEADER1,HEADER2].concat(rows));
+  var blob=new Blob([bytes],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  var fn="Encuesta de satisfacción Expo PyME "+stamp()+".xlsx";
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=fn;
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+  toast(hist.length+" respuesta(s) exportadas");
+}
+function stamp(){var d=new Date(),p=function(x){return(x<10?"0":"")+x;};return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"_"+p(d.getHours())+p(d.getMinutes());}
+
+/* ---------- Generador XLSX mínimo (ZIP "stored" + XML) ---------- */
+function colLetter(n){var s="";n++;while(n>0){var m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26);}return s;}
+function xmlEsc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function excelSerial(dt){
+  var base=Date.UTC(1899,11,30);
+  var local=Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate(),dt.getHours(),dt.getMinutes(),dt.getSeconds());
+  return (local-base)/86400000;
+}
+function sheetXml(matrix){
+  var lastCol=colLetter(matrix[0].length-1), lastRow=matrix.length;
+  var out='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:'+lastCol+lastRow+'"/><sheetData>';
+  for(var r=0;r<matrix.length;r++){
+    out+='<row r="'+(r+1)+'">';
+    var row=matrix[r];
+    for(var c=0;c<row.length;c++){
+      var v=row[c], ref=colLetter(c)+(r+1);
+      if(v===""||v==null) continue;
+      if(v&&v.__num!=null){ out+='<c r="'+ref+'"><v>'+v.__num+'</v></c>'; }
+      else if(v&&v.__date!=null){ out+='<c r="'+ref+'" s="1"><v>'+excelSerial(v.__date)+'</v></c>'; }
+      else{ out+='<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(v)+'</t></is></c>'; }
+    }
+    out+='</row>';
+  }
+  out+='</sheetData></worksheet>';
+  return out;
+}
+function buildXlsx(matrix){
+  var files=[
+    {name:"[Content_Types].xml", data:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+      '<Default Extension="xml" ContentType="application/xml"/>'+
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'+
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+
+      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'+
+      '</Types>'},
+    {name:"_rels/.rels", data:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'+
+      '</Relationships>'},
+    {name:"xl/workbook.xml", data:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'+
+      '<sheets><sheet name="Sheet" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+    {name:"xl/_rels/workbook.xml.rels", data:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'+
+      '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'+
+      '</Relationships>'},
+    {name:"xl/styles.xml", data:
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+      '<numFmts count="1"><numFmt numFmtId="164" formatCode="mm/dd/yyyy\\ hh:mm:ss"/></numFmts>'+
+      '<fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>'+
+      '<fills count="1"><fill><patternFill patternType="none"/></fill></fills>'+
+      '<borders count="1"><border/></borders>'+
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
+      '<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'+
+      '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>'+
+      '</styleSheet>'},
+    {name:"xl/worksheets/sheet1.xml", data: sheetXml(matrix)}
+  ];
+  return zipStore(files);
+}
+
+/* ZIP sin compresión (stored) + CRC32 */
+var CRC_TABLE=(function(){var t=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}return t;})();
+function crc32(bytes){var c=0xFFFFFFFF;for(var i=0;i<bytes.length;i++)c=CRC_TABLE[(c^bytes[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function strBytes(s){return new TextEncoder().encode(s);}
+function zipStore(files){
+  var chunks=[], central=[], offset=0;
+  function u16(n){return [n&0xFF,(n>>8)&0xFF];}
+  function u32(n){return [n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];}
+  files.forEach(function(f){
+    var nameB=strBytes(f.name), dataB=strBytes(f.data), crc=crc32(dataB);
+    var local=[].concat(u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(0),u16(0),u32(crc),u32(dataB.length),u32(dataB.length),u16(nameB.length),u16(0));
+    chunks.push(new Uint8Array(local)); chunks.push(nameB); chunks.push(dataB);
+    var cen=[].concat(u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(0),u16(0),u32(crc),u32(dataB.length),u32(dataB.length),u16(nameB.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset));
+    central.push(new Uint8Array(cen)); central.push(nameB);
+    offset+=local.length+nameB.length+dataB.length;
+  });
+  var cstart=offset, csize=0;
+  central.forEach(function(a){csize+=a.length;});
+  var end=[].concat(u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(csize),u32(cstart),u16(0));
+  var all=chunks.concat(central,[new Uint8Array(end)]);
+  var total=all.reduce(function(s,a){return s+a.length;},0);
+  var out=new Uint8Array(total), pos=0;
+  all.forEach(function(a){out.set(a,pos);pos+=a.length;});
+  return out;
+}
+
+/* ================================================================
+   11) ARRANQUE
+   ================================================================ */
+document.getElementById("cogBtn").onclick=askPin;
+screenWelcome();
+</script>
+</body>
+</html>
