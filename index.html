@@ -236,8 +236,8 @@ input,select,textarea{font-family:inherit;font-size:16px}
    EXPO PYME · Encuesta de satisfacción + Ruleta (offline)
    - Encuesta y configuración: estilo minimalista/corporativo.
    - Ruleta: estilo brutalism (único lugar donde se conserva).
-   - La ruleta entrega un solo premio: una comida del restaurante
-     "Arcada".
+   - La ruleta entrega un solo premio: vale por estacionamiento
+     gratis.
    - Guarda histórico en el navegador y exporta a Excel con el
      MISMO layout que "Encuesta de satisfacción Expo PyME.xlsx"
      (49 columnas, encabezado de 2 filas, datos desde la fila 3).
@@ -267,9 +267,9 @@ var BENEFICIOS = [
   {k:"crecimiento", t:"Crecimiento para mi empresa"}
 ];
 
-/* La ruleta entrega un ÚNICO premio: comida del restaurante Arcada. */
+/* La ruleta entrega un ÚNICO premio: vale por estacionamiento gratis. */
 var DEFAULT_PRIZES = [
-  {name:"Comida en restaurante Arcada", weight:100, stock:99999, isPrize:true}
+  {name:"Vale por estacionamiento gratis", weight:100, stock:99999, isPrize:true}
 ];
 
 /* ----------------------------------------------------------------
@@ -279,13 +279,24 @@ var LS_CFG="expopyme_cfg_v1", LS_HIST="expopyme_hist_v1";
 var WHEEL_COLORS=["#111111","#ff5252","#2962ff","#f7d417","#111111","#00c853","#ff5252","#2962ff","#f7d417","#00c853","#111111","#ff9100"];
 
 function loadCfg(){
-  var d={pin:"1234", eventTitle:"Expo PyME", prizes:DEFAULT_PRIZES.map(function(p){return Object.assign({},p);})};
-  try{var s=JSON.parse(localStorage.getItem(LS_CFG));if(s&&s.prizes){return Object.assign(d,s);}}catch(e){}
+  var d={pin:"1234", eventTitle:"Expo PyME", winPercent:25, prizes:DEFAULT_PRIZES.map(function(p){return Object.assign({},p);})};
+  try{var s=JSON.parse(localStorage.getItem(LS_CFG));if(s&&s.prizes){
+    var merged=Object.assign(d,s);
+    if(merged.winPercent==null) merged.winPercent=25;
+    return merged;
+  }}catch(e){}
   return d;
 }
 function saveCfg(c){localStorage.setItem(LS_CFG,JSON.stringify(c));}
 function loadHist(){try{return JSON.parse(localStorage.getItem(LS_HIST))||[];}catch(e){return [];}}
-function saveHist(h){localStorage.setItem(LS_HIST,JSON.stringify(h));}
+function saveHist(h){
+  try{
+    localStorage.setItem(LS_HIST,JSON.stringify(h));
+  }catch(e){
+    /* Si localStorage está lleno, intentar guardar en chunks o avisar */
+    toast("⚠ Almacenamiento casi lleno. Exporta y borra el histórico.");
+  }
+}
 
 var CFG=loadCfg();
 
@@ -334,7 +345,7 @@ function screenWelcome(){
         '<p class="hsub">Tecnología &amp; Seguridad</p>'+
         '<button class="btn-hero" id="startBtn">Comenzar encuesta</button>'+
       '</div>'+
-      '<div class="foot">Responde la encuesta y gira la ruleta por una comida en restaurante Arcada.</div>'+
+      '<div class="foot">Responde la encuesta y gira la ruleta por un vale de estacionamiento gratis.</div>'+
     '</div>');
   show(n,false);
   n.querySelector("#startBtn").onclick=function(){resetSurvey();renderSurvey();};
@@ -528,9 +539,17 @@ function validateStep(id){
 }
 
 /* ================================================================
-   7) RULETA (brutalism) — un solo premio: comida en Arcada
+   7) RULETA (brutalism) — un solo premio: vale estacionamiento
    ================================================================ */
 function availablePrizes(){return CFG.prizes.filter(function(p){return (p.stock===null||p.stock>0)&&(parseFloat(p.weight)||0)>0;});}
+
+/* Decide si el participante gana o no, según winPercent */
+function shouldWin(){
+  var pct = parseFloat(CFG.winPercent);
+  if(isNaN(pct) || pct <= 0) return false;
+  if(pct >= 100) return true;
+  return (Math.random() * 100) < pct;
+}
 
 function pickWeighted(list){
   var total=list.reduce(function(s,p){return s+(parseFloat(p.weight)||0);},0);
@@ -541,10 +560,10 @@ function pickWeighted(list){
 
 /* Segmentos visuales de la ruleta.
    Con un único premio, se dibujan varias porciones decorativas
-   (misma comida) para que la rueda se vea completa y gire bien. */
+   para que la rueda se vea completa y gire bien. */
 function wheelSegments(prizes){
   if(prizes.length>1) return prizes.map(function(p){return {name:p.name};});
-  var labels=["ARCADA","COMIDA","ARCADA","COMIDA","ARCADA","COMIDA","ARCADA","COMIDA"];
+  var labels=["PREMIO","GIRA","SUERTE","EXPO","PREMIO","GIRA","SUERTE","EXPO"];
   return labels.map(function(l){return {name:l};});
 }
 
@@ -569,15 +588,22 @@ function renderRoulette(){
 
   btn.onclick=function(){
     if(spinning) return;
+    /* Recargar CFG desde localStorage para que los cambios del panel tomen efecto */
+    CFG=loadCfg();
     var avail=availablePrizes();
     if(!avail.length){toast("No hay premios configurados");return;}
     spinning=true;btn.disabled=true;res.innerHTML="";
-    var winner=pickWeighted(avail);
+    /* Decidir si gana según winPercent */
+    var wins = shouldWin();
+    var winner;
+    if(wins){
+      winner = pickWeighted(avail);
+    } else {
+      winner = {name:"¡Sigue intentando!", weight:0, stock:null, isPrize:false};
+    }
     var N=segs.length, seg=360/N;
-    // índice del segmento donde cae el puntero
-    var landIdx = (CFG.prizes.length>1) ? CFG.prizes.indexOf(winner) : Math.floor(Math.random()*N);
+    var landIdx = Math.floor(Math.random()*N);
     if(landIdx<0) landIdx=0;
-    // ángulo para que el CENTRO del segmento quede arriba (puntero)
     var center=landIdx*seg+seg/2;
     var jitter=(Math.random()-0.5)*seg*0.6;
     var target=(360-center)-jitter;
@@ -716,7 +742,11 @@ function renderAdmin(){
 
       '<div class="card">'+
         '<p class="ctag">Premios de la ruleta</p>'+
-        '<p class="mini-note">La ruleta está pensada para un solo premio (comida en restaurante Arcada). Peso = probabilidad relativa. Stock = cantidad disponible. Premio = cuenta como premio ganado (se guarda en custom_1).</p>'+
+        '<p class="mini-note">La ruleta entrega: vale por estacionamiento gratis. Ajusta el <b>% de probabilidad de ganar</b> abajo. Peso = probabilidad relativa entre premios. Stock = cantidad disponible. Premio = cuenta como premio ganado (se guarda en custom_1).</p>'+
+        '<div class="field" style="margin-bottom:18px"><label>Probabilidad de ganar premio (%)</label>'+
+          '<input type="number" id="winPctIn" min="0" max="100" step="1" value="'+esc(CFG.winPercent)+'" style="max-width:120px">'+
+          '<p class="mini-note" style="margin-top:6px">Ejemplo: 10 = 10% de probabilidad, 25 = 25%. El resto de giros salen "¡Sigue intentando!"</p>'+
+        '</div>'+
         '<table class="mtbl"><thead><tr><th>Nombre</th><th>Peso</th><th>Stock</th><th>Premio</th><th></th></tr></thead>'+
         '<tbody id="prizeBody">'+rows+'</tbody></table>'+
         '<button class="btn-sm btn-outline" id="addPrize">+ Agregar premio</button>'+
@@ -756,9 +786,22 @@ function renderAdmin(){
     b.onclick=function(){CFG.prizes.splice(+b.getAttribute("data-del"),1);saveCfg(CFG);renderAdmin();};
   });
   n.querySelector("#addPrize").onclick=function(){CFG.prizes.push({name:"Nuevo premio",weight:10,stock:10,isPrize:true});saveCfg(CFG);renderAdmin();};
+  /* Guardar winPercent en tiempo real */
+  var winPctInput=n.querySelector("#winPctIn");
+  if(winPctInput){
+    winPctInput.onchange=function(){
+      var v=parseFloat(winPctInput.value);
+      if(isNaN(v)||v<0) v=0; if(v>100) v=100;
+      CFG.winPercent=v; winPctInput.value=v;
+      saveCfg(CFG); toast("Probabilidad actualizada: "+v+"%");
+    };
+  }
   n.querySelector("#saveCfg").onclick=function(){
     CFG.eventTitle=n.querySelector("#evtTitle").value||"Expo PyME";
     var p=n.querySelector("#pinIn").value.replace(/\D/g,"").slice(0,4); if(p.length===4)CFG.pin=p;
+    /* Guardar también winPercent al guardar ajustes */
+    var wp=parseFloat(n.querySelector("#winPctIn").value);
+    if(!isNaN(wp)&&wp>=0&&wp<=100) CFG.winPercent=wp;
     saveCfg(CFG);toast("Ajustes guardados");
   };
   n.querySelector("#exportBtn").onclick=function(){exportExcel();};
@@ -864,22 +907,25 @@ function excelSerial(dt){
 }
 function sheetXml(matrix){
   var lastCol=colLetter(matrix[0].length-1), lastRow=matrix.length;
-  var out='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
-    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:'+lastCol+lastRow+'"/><sheetData>';
+  /* Usar array de chunks en vez de concatenar un string enorme.
+     Esto evita que el navegador crashee con 200-500+ respuestas. */
+  var parts=[];
+  parts.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
+  parts.push('<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:'+lastCol+lastRow+'"/><sheetData>');
   for(var r=0;r<matrix.length;r++){
-    out+='<row r="'+(r+1)+'">';
+    parts.push('<row r="'+(r+1)+'">');
     var row=matrix[r];
     for(var c=0;c<row.length;c++){
       var v=row[c], ref=colLetter(c)+(r+1);
       if(v===""||v==null) continue;
-      if(v&&v.__num!=null){ out+='<c r="'+ref+'"><v>'+v.__num+'</v></c>'; }
-      else if(v&&v.__date!=null){ out+='<c r="'+ref+'" s="1"><v>'+excelSerial(v.__date)+'</v></c>'; }
-      else{ out+='<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(v)+'</t></is></c>'; }
+      if(v&&v.__num!=null){ parts.push('<c r="'+ref+'"><v>'+v.__num+'</v></c>'); }
+      else if(v&&v.__date!=null){ parts.push('<c r="'+ref+'" s="1"><v>'+excelSerial(v.__date)+'</v></c>'); }
+      else{ parts.push('<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(v)+'</t></is></c>'); }
     }
-    out+='</row>';
+    parts.push('</row>');
   }
-  out+='</sheetData></worksheet>';
-  return out;
+  parts.push('</sheetData></worksheet>');
+  return parts.join('');
 }
 function buildXlsx(matrix){
   var files=[
