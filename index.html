@@ -12,8 +12,17 @@
 html,body{margin:0;padding:0;height:100%}
 body{
   font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:#1b1e23;background:#eceef1;line-height:1.5;
+  color:#1b1e23;background:#f3eff0;line-height:1.5;
   -webkit-font-smoothing:antialiased;
+}
+/* Paleta de marca Expo PyME (rojo / vino) */
+:root{
+  --brand:#8c1d40;        /* vino/maroon (EXPO) */
+  --brand-2:#e11b22;      /* rojo (PyME) */
+  --brand-strong:#a3234c; /* hover */
+  --brand-deep:#6e1732;   /* sombra profunda */
+  --brand-soft:#faf1f4;   /* relleno suave seleccionado */
+  --brand-line:#eecdd8;   /* borde suave */
 }
 button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit;font-size:16px}
@@ -28,8 +37,8 @@ input,select,textarea{font-family:inherit;font-size:16px}
 .min{max-width:900px;margin:0 auto;width:100%;padding:64px 20px 120px}
 
 /* Progreso */
-.progress{max-width:720px;margin:6px auto 30px;height:3px;background:#dde1e6;border-radius:99px;overflow:hidden}
-.progress > span{display:block;height:100%;background:#1b1e23;width:0;transition:width .4s ease}
+.progress{max-width:720px;margin:6px auto 30px;height:4px;background:#e6dde1;border-radius:99px;overflow:hidden}
+.progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand-2));width:0;transition:width .4s ease}
 
 /* Tarjeta */
 .card{background:#fff;border:1px solid #e6e9ed;border-radius:22px;padding:38px 34px;box-shadow:0 12px 40px rgba(27,30,35,.06);max-width:720px;margin:0 auto}
@@ -44,7 +53,7 @@ input,select,textarea{font-family:inherit;font-size:16px}
 .field input[type=text],.field input[type=email],.field input[type=tel],.field input[type=number],.field select,.field textarea{
   width:100%;padding:13px 15px;border:1px solid #e0e4e9;border-radius:13px;background:#f7f8fa;color:#1b1e23;outline:none;transition:border .15s,box-shadow .15s,background .15s;
 }
-.field input:focus,.field select:focus,.field textarea:focus{border-color:#1b1e23;background:#fff;box-shadow:0 0 0 3px rgba(27,30,35,.07)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);background:#fff;box-shadow:0 0 0 3px rgba(140,29,64,.12)}
 .field textarea{min-height:92px;resize:vertical}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:560px){.grid2{grid-template-columns:1fr}}
@@ -55,8 +64,8 @@ input,select,textarea{font-family:inherit;font-size:16px}
   min-width:46px;height:46px;padding:0 6px;border:1px solid #e2e6ea;background:#f7f8fa;border-radius:12px;
   font-weight:600;color:#5a6067;font-size:15px;transition:.12s;
 }
-.scale button:hover{border-color:#bfc5cc;background:#fff}
-.scale button.on{background:#1b1e23;border-color:#1b1e23;color:#fff;box-shadow:0 4px 14px rgba(27,30,35,.22)}
+.scale button:hover{border-color:#d3a9b7;background:#fff}
+.scale button.on{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 4px 14px rgba(140,29,64,.28)}
 .scale-ends{display:flex;justify-content:space-between;font-size:11px;color:#a9afb6;margin-top:6px;letter-spacing:.04em}
 
 /* Opciones tipo radio / checkbox */
@@ -65,13 +74,13 @@ input,select,textarea{font-family:inherit;font-size:16px}
   display:flex;align-items:center;gap:14px;border:1px solid #e4e8ec;border-radius:14px;padding:15px 16px;background:#f7f8fa;
   cursor:pointer;transition:.12s;user-select:none;
 }
-.opt-row:hover{border-color:#c6ccd2;background:#fff}
-.opt-row.on{border-color:#1b1e23;background:#f2f3f5}
+.opt-row:hover{border-color:#d3a9b7;background:#fff}
+.opt-row.on{border-color:var(--brand);background:var(--brand-soft)}
 .opt-row .box{
   width:20px;height:20px;flex:0 0 auto;border:2px solid #ccd2d8;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:.12s;
 }
 .opt-row.check .box{border-radius:6px}
-.opt-row.on .box{border-color:#1b1e23;background:#1b1e23}
+.opt-row.on .box{border-color:var(--brand);background:var(--brand)}
 .opt-row.on .box::after{content:"";width:8px;height:8px;background:#fff;border-radius:inherit}
 .opt-row span{font-size:15px;color:#33383e;font-weight:400}
 
@@ -86,8 +95,8 @@ input,select,textarea{font-family:inherit;font-size:16px}
 .btn{
   border:none;border-radius:999px;padding:15px 28px;font-weight:600;font-size:15px;letter-spacing:.01em;transition:.15s;
 }
-.btn-primary{background:#1b1e23;color:#fff;flex:1;box-shadow:0 8px 22px rgba(27,30,35,.2)}
-.btn-primary:hover{background:#2b2f36}
+.btn-primary{background:var(--brand);color:#fff;flex:1;box-shadow:0 8px 22px rgba(140,29,64,.28)}
+.btn-primary:hover{background:var(--brand-strong)}
 .btn-ghost{background:#fff;color:#5a6067;border:1px solid #e0e4e9}
 .btn-ghost:hover{border-color:#bfc5cc}
 .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
@@ -95,28 +104,25 @@ input,select,textarea{font-family:inherit;font-size:16px}
 /* Botón de configuración (engrane) — minimalista */
 .cog{position:fixed;top:16px;right:16px;z-index:55;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:.15s}
 .cog:hover{background:rgba(255,255,255,.24)}
-.cog.dark{border-color:#e0e4e9;background:rgba(255,255,255,.9);color:#868d95}
-.cog.dark:hover{color:#1b1e23;border-color:#bfc5cc}
+.cog.dark{border-color:#e6d3da;background:rgba(255,255,255,.9);color:#a98896}
+.cog.dark:hover{color:var(--brand);border-color:#d3a9b7}
 
 /* ============================================================
    HERO A PANTALLA COMPLETA (bienvenida) — "card de foto"
    ============================================================ */
-.hero-full{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 28px;overflow:hidden;background:#15171b}
+.hero-full{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 28px;overflow:hidden;background:#6e1732}
 .hero-full .photo{position:absolute;inset:0;
   background:
-    radial-gradient(120% 95% at 74% 34%, rgba(150,162,178,.42), transparent 52%),
-    radial-gradient(90% 80% at 18% 66%, rgba(96,108,124,.34), transparent 60%),
-    linear-gradient(118deg,#262b32 0%,#171a1e 46%,#2e343c 100%);
+    radial-gradient(120% 95% at 82% 18%, #e11b22 0%, transparent 46%),
+    radial-gradient(90% 90% at 12% 92%, #5a1128 0%, transparent 55%),
+    linear-gradient(125deg,#8c1d40 0%,#6e1732 52%,#b0182a 100%);
 }
-.hero-full .photo::before{content:"";position:absolute;inset:0;
-  background:linear-gradient(90deg,rgba(15,17,20,.35) 0%,transparent 22%,transparent 78%,rgba(15,17,20,.35) 100%);}
 .hero-full .photo::after{content:"";position:absolute;inset:0;
-  background:radial-gradient(130% 120% at 50% 42%,transparent 46%,rgba(10,11,13,.62) 100%);}
-.hero-full .brand{position:absolute;top:22px;left:26px;display:flex;align-items:center;gap:10px;z-index:2}
-.hero-full .brand .mk{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;position:relative}
-.hero-full .brand .mk::after{content:"";width:9px;height:9px;border-radius:50%;background:#fff}
-.hero-full .brand .bn{font-weight:700;font-size:14px;color:#fff;letter-spacing:.02em}
-.hero-full .brand .bn small{display:block;font-weight:400;color:rgba(255,255,255,.6);font-size:9px;letter-spacing:.28em;text-transform:uppercase;margin-top:1px}
+  background:radial-gradient(130% 120% at 50% 44%,transparent 44%,rgba(60,8,24,.55) 100%);}
+/* Hexágonos decorativos (motivo Expo PyME) */
+.hexes{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.hx{position:absolute;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}
+.brand-logo{position:absolute;top:22px;left:26px;z-index:2;display:block;height:128px;width:auto;max-width:min(440px,82vw);object-fit:contain;filter:drop-shadow(0 4px 18px rgba(0,0,0,.35))}
 .hero-full .inner{position:relative;z-index:2;max-width:900px}
 .hero-full .htitle{font-size:clamp(56px,13vw,150px);font-weight:300;color:#fff;letter-spacing:-.04em;line-height:.9;margin:0;text-shadow:0 8px 40px rgba(0,0,0,.35)}
 .hero-full .hsub{margin:26px 0 40px;color:rgba(244,245,246,.9);font-size:clamp(11px,2.4vw,17px);letter-spacing:.5em;text-transform:uppercase;font-weight:500;padding-left:.5em}
@@ -128,7 +134,7 @@ input,select,textarea{font-family:inherit;font-size:16px}
 .hero{text-align:center;padding:20px 0 0}
 .hero h2{font-size:clamp(34px,7vw,52px);margin:0 0 10px;letter-spacing:-.03em;color:#1b1e23;font-weight:300}
 .hero p{color:#868d95;font-size:16px;max-width:460px;margin:0 auto 32px;line-height:1.6}
-.check-ic{width:88px;height:88px;border-radius:50%;background:#eceef1;color:#1b1e23;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 26px;border:1px solid #e0e4e9}
+.check-ic{width:88px;height:88px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 26px;border:1px solid var(--brand-line)}
 
 /* ============================================================
    ADMIN MINIMALISTA (config + PIN)
@@ -146,43 +152,43 @@ input,select,textarea{font-family:inherit;font-size:16px}
 .mtbl th{font-size:11px;text-transform:uppercase;letter-spacing:.1em;text-align:left;padding:6px 8px;border-bottom:1px solid #e6e9ed;color:#9aa1a9;font-weight:600}
 .mtbl td{padding:6px 6px}
 .mtbl input{width:100%;border:1px solid #e0e4e9;border-radius:10px;padding:10px 10px;font-family:inherit;background:#f7f8fa;color:#1b1e23}
-.mtbl input:focus{outline:none;border-color:#1b1e23;background:#fff}
+.mtbl input:focus{outline:none;border-color:var(--brand);background:#fff}
 .mtbl input.num{text-align:center}
 .mtbl .del{background:#fff;color:#d64545;border:1px solid #e6d0d0;border-radius:10px;font-weight:700;width:38px;height:38px;font-size:17px;transition:.12s}
 .mtbl .del:hover{background:#fbeaea;border-color:#e5b8b8}
 .btn-sm{border:none;border-radius:999px;padding:12px 22px;font-weight:600;font-size:14px;transition:.15s}
-.btn-dark{background:#1b1e23;color:#fff;box-shadow:0 6px 18px rgba(27,30,35,.18)}
-.btn-dark:hover{background:#2b2f36}
+.btn-dark{background:var(--brand);color:#fff;box-shadow:0 6px 18px rgba(140,29,64,.22)}
+.btn-dark:hover{background:var(--brand-strong)}
 .btn-outline{background:#fff;color:#5a6067;border:1px solid #e0e4e9}
 .btn-outline:hover{border-color:#bfc5cc}
 .btn-danger{background:#fff;color:#d64545;border:1px solid #e6d0d0}
 .btn-danger:hover{background:#fbeaea;border-color:#e5b8b8}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .back{display:inline-block;margin-top:6px;color:#63696f;font-weight:600;text-decoration:none;cursor:pointer;font-size:14px}
-.back:hover{color:#1b1e23}
+.back:hover{color:var(--brand)}
 .mini-note{font-size:12.5px;color:#868d95;margin:0 0 14px;line-height:1.5}
 
 /* Pin pad minimalista */
 .pinpad{max-width:300px;margin:8vh auto 0}
 .pin-dots{display:flex;justify-content:center;gap:14px;margin:20px 0}
-.pin-dots i{width:14px;height:14px;border:2px solid #c6ccd2;border-radius:50%;transition:.15s}
-.pin-dots i.f{background:#1b1e23;border-color:#1b1e23}
+.pin-dots i{width:14px;height:14px;border:2px solid #d3a9b7;border-radius:50%;transition:.15s}
+.pin-dots i.f{background:var(--brand);border-color:var(--brand)}
 .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .keypad button{background:#fff;border:1px solid #e6e9ed;border-radius:16px;font-weight:500;font-size:22px;padding:16px;font-family:inherit;color:#1b1e23;transition:.12s;box-shadow:0 4px 12px rgba(27,30,35,.05)}
-.keypad button:hover{border-color:#bfc5cc}
+.keypad button:hover{border-color:#d3a9b7}
 .keypad button:active{transform:scale(.97)}
 
 /* ============================================================
    ESTILO BRUTALISM  (SOLO la ruleta)
    ============================================================ */
 .brutal{
-  background:#f7d417;color:#111;min-height:100vh;
+  background:#e11b22;color:#111;min-height:100vh;
   font-family:"Courier New",ui-monospace,monospace;
   padding:24px 18px 60px;display:flex;flex-direction:column;align-items:center;
 }
-.brutal .bwrap{width:100%;max-width:560px}
+.brutal .bwrap{width:100%;max-width:780px}
 .brutal h2{
-  font-size:34px;font-weight:900;text-transform:uppercase;letter-spacing:-1px;margin:6px 0 2px;line-height:.95;
+  font-size:38px;font-weight:900;text-transform:uppercase;letter-spacing:-1px;margin:6px 0 2px;line-height:.95;
   -webkit-text-stroke:1px #111;
 }
 .brutal .sub{font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:2px;margin:0 0 20px}
@@ -190,36 +196,35 @@ input,select,textarea{font-family:inherit;font-size:16px}
 .brutal .panel.red{background:#ff5252;color:#fff}
 .brutal .panel.blue{background:#2962ff;color:#fff}
 
-.wheel-stage{position:relative;width:340px;height:340px;margin:6px auto 4px;max-width:88vw}
-@media(max-width:400px){.wheel-stage{width:300px;height:300px}}
+.wheel-stage{position:relative;width:min(600px,92vw);height:min(600px,92vw);margin:8px auto 6px}
 .wheel-stage svg{display:block;width:100%;height:100%;filter:drop-shadow(6px 6px 0 #111)}
-#wheelGroup{transform-origin:50% 50%;transition:transform 5s cubic-bezier(.17,.67,.16,1)}
+#wheelGroup{transform-origin:50% 50%;transition:none}
 .pointer{
-  position:absolute;top:-6px;left:50%;transform:translateX(-50%);z-index:5;
-  width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:34px solid #111;
+  position:absolute;top:-12px;left:50%;transform:translateX(-50%);z-index:5;
+  width:0;height:0;border-left:26px solid transparent;border-right:26px solid transparent;border-top:52px solid #111;
 }
 .hub{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;
-  width:60px;height:60px;border-radius:50%;background:#111;border:4px solid #fff;
-  display:flex;align-items:center;justify-content:center;color:#f7d417;font-weight:900;font-size:11px;text-align:center;
+  width:96px;height:96px;border-radius:50%;background:#111;border:6px solid #fff;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px;text-align:center;
 }
 .bbtn{
-  display:block;width:100%;background:#111;color:#f7d417;border:4px solid #111;
-  font-family:inherit;font-weight:900;text-transform:uppercase;font-size:22px;letter-spacing:2px;
-  padding:18px;box-shadow:6px 6px 0 #b89e00;transition:.06s;
+  display:block;width:100%;background:#111;color:#fff;border:4px solid #111;
+  font-family:inherit;font-weight:900;text-transform:uppercase;font-size:24px;letter-spacing:2px;
+  padding:20px;box-shadow:6px 6px 0 #6e1732;transition:.06s;
 }
-.bbtn:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #b89e00}
+.bbtn:active{transform:translate(4px,4px);box-shadow:2px 2px 0 #6e1732}
 .bbtn:disabled{opacity:.45;box-shadow:none}
 .bbtn.alt{background:#fff;color:#111}
 .bbtn.small{font-size:14px;padding:12px}
 
 .result{
-  text-align:center;background:#111;color:#f7d417;border:4px solid #111;padding:22px;margin:14px 0;
-  box-shadow:8px 8px 0 #ff5252;
+  text-align:center;background:#111;color:#fff;border:4px solid #111;padding:24px;margin:16px 0;
+  box-shadow:8px 8px 0 #6e1732;
 }
-.result .lbl{font-size:12px;letter-spacing:3px;font-weight:700;text-transform:uppercase;opacity:.8}
-.result .prize{font-size:28px;font-weight:900;text-transform:uppercase;margin:6px 0 0;line-height:1;-webkit-text-stroke:.5px #f7d417}
-.result.nolose{box-shadow:8px 8px 0 #2962ff}
+.result .lbl{font-size:13px;letter-spacing:3px;font-weight:700;text-transform:uppercase;opacity:.85}
+.result .prize{font-size:30px;font-weight:900;text-transform:uppercase;margin:6px 0 0;line-height:1;-webkit-text-stroke:.5px #fff}
+.result.nolose{box-shadow:8px 8px 0 #111}
 .brutal a.back{display:inline-block;margin-top:6px;color:#111;font-weight:900;text-decoration:underline;cursor:pointer}
 
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#1b1e23;color:#fff;font-weight:600;padding:12px 22px;z-index:80;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:14px}
@@ -236,8 +241,8 @@ input,select,textarea{font-family:inherit;font-size:16px}
    EXPO PYME · Encuesta de satisfacción + Ruleta (offline)
    - Encuesta y configuración: estilo minimalista/corporativo.
    - Ruleta: estilo brutalism (único lugar donde se conserva).
-   - La ruleta entrega un solo premio: vale por estacionamiento
-     gratis.
+   - La ruleta entrega un premio real (cupón de estacionamiento); el resto de
+     segmentos son de consolación (sin premio), como una ruleta de casino.
    - Guarda histórico en el navegador y exporta a Excel con el
      MISMO layout que "Encuesta de satisfacción Expo PyME.xlsx"
      (49 columnas, encabezado de 2 filas, datos desde la fila 3).
@@ -267,35 +272,89 @@ var BENEFICIOS = [
   {k:"crecimiento", t:"Crecimiento para mi empresa"}
 ];
 
-/* La ruleta entrega un ÚNICO premio: vale por estacionamiento gratis. */
+/* La ruleta entrega UN premio real (cupón de estacionamiento) y el resto
+   son segmentos de consolación (sin premio), como una ruleta de casino.
+   label = texto corto que se dibuja en la ruleta (sin abreviar).
+   name  = nombre completo que se muestra en el resultado.
+   Pesos suman 100 -> estacionamiento = 15%. */
 var DEFAULT_PRIZES = [
-  {name:"Vale por estacionamiento gratis", weight:100, stock:99999, isPrize:true}
+  {name:"Cupón de Estacionamiento", label:"¡PREMIO!", weight:15,  stock:99999, isPrize:true },
+  {name:"Gracias por participar",   label:"GRACIAS",  weight:10,  stock:null,   isPrize:false},
+  {name:"Vuelve a intentarlo",      label:"¡VUELVE!", weight:10,  stock:null,   isPrize:false},
+  {name:"Mejor suerte",             label:"SUERTE",   weight:8,   stock:null,   isPrize:false},
+  {name:"Sigue participando",       label:"SIGUE",    weight:8,   stock:null,   isPrize:false},
+  {name:"Sin premio esta vez",      label:"CASI",     weight:8,   stock:null,   isPrize:false},
+  {name:"Gracias por tu visita",    label:"VISITA",   weight:8,   stock:null,   isPrize:false},
+  {name:"Inténtalo de nuevo",       label:"INTENTA",  weight:8,   stock:null,   isPrize:false},
+  {name:"Participa de nuevo",       label:"ÁNIMO",    weight:8,   stock:null,   isPrize:false},
+  {name:"Casi lo logras",           label:"¡CASI!",   weight:7,   stock:null,   isPrize:false},
+  {name:"Suerte la próxima",        label:"OTRA VEZ", weight:5,   stock:null,   isPrize:false},
+  {name:"Gracias por venir",        label:"GRACIAS",  weight:5,   stock:null,   isPrize:false}
 ];
 
 /* ----------------------------------------------------------------
    2) ALMACENAMIENTO (localStorage)
    ---------------------------------------------------------------- */
-var LS_CFG="expopyme_cfg_v1", LS_HIST="expopyme_hist_v1";
-var WHEEL_COLORS=["#111111","#ff5252","#2962ff","#f7d417","#111111","#00c853","#ff5252","#2962ff","#f7d417","#00c853","#111111","#ff9100"];
+var LS_CFG="expopyme_cfg_v1", LS_HIST="expopyme_hist_v1", LS_DRAFT="expopyme_draft_v1";
+var WHEEL_COLORS=["#8c1d40","#e11b22","#111111","#c21e56","#6e1732","#e11b22","#111111","#a3234c","#7a1230","#d61a29","#4a0d1f","#b0182a"];
 
 function loadCfg(){
-  var d={pin:"1234", eventTitle:"Expo PyME", winPercent:25, prizes:DEFAULT_PRIZES.map(function(p){return Object.assign({},p);})};
-  try{var s=JSON.parse(localStorage.getItem(LS_CFG));if(s&&s.prizes){
-    var merged=Object.assign(d,s);
-    if(merged.winPercent==null) merged.winPercent=25;
-    return merged;
-  }}catch(e){}
+  var d={pin:"1234", eventTitle:"Expo PyME", autoExportEvery:10, prizes:DEFAULT_PRIZES.map(function(p){return Object.assign({},p);})};
+  try{var s=JSON.parse(localStorage.getItem(LS_CFG));if(s&&s.prizes){return Object.assign(d,s);}}catch(e){}
   return d;
 }
-function saveCfg(c){localStorage.setItem(LS_CFG,JSON.stringify(c));}
+function saveCfg(c){localStorage.setItem(LS_CFG,JSON.stringify(c));try{idbSet(LS_CFG,c);}catch(e){}}
 function loadHist(){try{return JSON.parse(localStorage.getItem(LS_HIST))||[];}catch(e){return [];}}
-function saveHist(h){
-  try{
-    localStorage.setItem(LS_HIST,JSON.stringify(h));
-  }catch(e){
-    /* Si localStorage está lleno, intentar guardar en chunks o avisar */
-    toast("⚠ Almacenamiento casi lleno. Exporta y borra el histórico.");
-  }
+function saveHist(h){localStorage.setItem(LS_HIST,JSON.stringify(h));try{idbSet(LS_HIST,h);}catch(e){}}
+
+/* ---- Borrador de la encuesta en curso (para no perder nada) ---- */
+function saveDraft(){try{localStorage.setItem(LS_DRAFT,JSON.stringify({A:A,stepIndex:stepIndex,ts:Date.now()}));}catch(e){}}
+function loadDraft(){try{return JSON.parse(localStorage.getItem(LS_DRAFT));}catch(e){return null;}}
+function clearDraft(){try{localStorage.removeItem(LS_DRAFT);}catch(e){}}
+function draftHasData(d){if(!d||!d.A)return false;var a=d.A;return !!(a.nombre||a.correo||a.empresa||a.telefono||a.rol||a.nps!=null||a.comentario||a.gustoMas);}
+
+/* ---- IndexedDB: respaldo durable + recuperación ---- */
+var IDB_NAME="expopyme_db", IDB_STORE="kv", _idbP=null;
+function idbOpen(){
+  if(_idbP) return _idbP;
+  _idbP=new Promise(function(res,rej){
+    try{
+      if(!window.indexedDB){return rej(new Error("no-idb"));}
+      var rq=indexedDB.open(IDB_NAME,1);
+      rq.onupgradeneeded=function(){try{rq.result.createObjectStore(IDB_STORE);}catch(e){}};
+      rq.onsuccess=function(){res(rq.result);};
+      rq.onerror=function(){rej(rq.error);};
+    }catch(e){rej(e);}
+  });
+  return _idbP;
+}
+function idbSet(key,val){
+  return idbOpen().then(function(db){return new Promise(function(res,rej){
+    try{var tx=db.transaction(IDB_STORE,"readwrite");tx.objectStore(IDB_STORE).put(val,key);
+      tx.oncomplete=function(){res();};tx.onerror=function(){rej(tx.error);};}catch(e){rej(e);}
+  });}).catch(function(){});
+}
+function idbGet(key){
+  return idbOpen().then(function(db){return new Promise(function(res,rej){
+    try{var tx=db.transaction(IDB_STORE,"readonly");var rq=tx.objectStore(IDB_STORE).get(key);
+      rq.onsuccess=function(){res(rq.result);};rq.onerror=function(){rej(rq.error);};}catch(e){rej(e);}
+  });}).catch(function(){return null;});
+}
+/* Al arrancar: pide almacenamiento persistente y recupera lo que
+   pudiera estar solo en IndexedDB (p.ej. si se limpió localStorage). */
+function initPersistence(){
+  try{ if(navigator.storage&&navigator.storage.persist){navigator.storage.persist();} }catch(e){}
+  idbGet(LS_HIST).then(function(idbHist){
+    if(!idbHist||!idbHist.length) return;
+    var ls=loadHist(), seen={};
+    ls.forEach(function(e){if(e&&e.respondentId)seen[e.respondentId]=true;});
+    var merged=ls.slice(), added=0;
+    idbHist.forEach(function(e){if(e&&e.respondentId&&!seen[e.respondentId]){merged.push(e);seen[e.respondentId]=true;added++;}});
+    if(added>0){ localStorage.setItem(LS_HIST,JSON.stringify(merged)); toast("Se recuperaron "+added+" respuesta(s) del respaldo"); }
+  });
+  idbGet(LS_CFG).then(function(c){
+    if(c&&c.prizes&&!localStorage.getItem(LS_CFG)){ localStorage.setItem(LS_CFG,JSON.stringify(c)); CFG=loadCfg(); }
+  });
 }
 
 var CFG=loadCfg();
@@ -311,6 +370,7 @@ var wonPrize=null;   // premio ganado en la ruleta
 function resetSurvey(){
   A={ beneficios:{}, emp:[{},{},{}] };
   stepIndex=0; wonPrize=null;
+  clearDraft();
 }
 
 /* Pasos: los comunes + rama según rol.
@@ -328,6 +388,7 @@ function buildSteps(){
    ---------------------------------------------------------------- */
 function el(html){var d=document.createElement("div");d.innerHTML=html.trim();return d.firstChild;}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function isDark(hex){var c=String(hex||"").replace("#","");if(c.length<6)return true;var r=parseInt(c.substr(0,2),16),g=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);return (0.299*r+0.587*g+0.114*b)<145;}
 function toast(msg){var t=document.getElementById("toast");t.className="toast";t.textContent=msg;clearTimeout(t._t);t._t=setTimeout(function(){t.className="";},2200);}
 function show(node,darkCog){root.innerHTML="";root.appendChild(node);var c=document.getElementById("cogBtn");c.classList.remove("hidden");c.classList.toggle("dark",!!darkCog);window.scrollTo(0,0);}
 
@@ -335,20 +396,38 @@ function show(node,darkCog){root.innerHTML="";root.appendChild(node);var c=docum
    5) BIENVENIDA — hero de foto a pantalla completa (sin navbar)
    ================================================================ */
 function screenWelcome(){
-  document.body.style.background="#15171b";
+  document.body.style.background="#6e1732";
+  var draft=loadDraft(), canResume=draftHasData(draft);
+  var resumeBtn=canResume
+    ? '<button class="btn-hero" id="resumeBtn" style="background:transparent;color:#fff;border:2px solid rgba(255,255,255,.6);box-shadow:none;margin-left:10px">Continuar encuesta anterior</button>'
+    : '';
   var n=el(
     '<div class="hero-full">'+
       '<div class="photo"></div>'+
-      '<div class="brand"><div class="mk"></div><div class="bn">'+esc(CFG.eventTitle)+'<small>Tecnología &amp; Seguridad</small></div></div>'+
+      '<div class="hexes">'+
+        '<div class="hx" style="width:280px;height:308px;top:-70px;right:-40px;background:rgba(225,27,34,.28)"></div>'+
+        '<div class="hx" style="width:200px;height:220px;top:120px;right:120px;background:rgba(255,255,255,.06)"></div>'+
+        '<div class="hx" style="width:240px;height:264px;bottom:-90px;left:-60px;background:rgba(90,17,40,.5)"></div>'+
+        '<div class="hx" style="width:150px;height:165px;bottom:60px;left:120px;background:rgba(255,255,255,.05)"></div>'+
+      '</div>'+
+      '<img class="brand-logo" src="img/Logo Expo PyME 2026_white.png" alt="Expo PyME 2026">'+
       '<div class="inner">'+
         '<h1 class="htitle">'+esc(CFG.eventTitle)+'</h1>'+
-        '<p class="hsub">Tecnología &amp; Seguridad</p>'+
-        '<button class="btn-hero" id="startBtn">Comenzar encuesta</button>'+
+        '<p class="hsub">Encuentro empresarial</p>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">'+
+          '<button class="btn-hero" id="startBtn">Comenzar encuesta</button>'+resumeBtn+
+        '</div>'+
       '</div>'+
-      '<div class="foot">Responde la encuesta y gira la ruleta por un vale de estacionamiento gratis.</div>'+
     '</div>');
   show(n,false);
   n.querySelector("#startBtn").onclick=function(){resetSurvey();renderSurvey();};
+  if(canResume){
+    n.querySelector("#resumeBtn").onclick=function(){
+      A=draft.A||{}; if(!A.beneficios)A.beneficios={}; if(!A.emp)A.emp=[{},{},{}];
+      stepIndex=draft.stepIndex||0; wonPrize=null;
+      renderSurvey();
+    };
+  }
 }
 
 /* ================================================================
@@ -383,6 +462,7 @@ function renderSurvey(){
     '</div>');
   show(n,true);
   wireSurvey(n,id);
+  saveDraft();
   var back=n.querySelector("#backBtn"); if(back) back.onclick=function(){stepIndex--;renderSurvey();};
   n.querySelector("#nextBtn").onclick=function(){
     if(!validateStep(id)) return;
@@ -393,17 +473,14 @@ function renderSurvey(){
 
 /* --- Vistas de cada paso --- */
 function viewContacto(){
-  function f(label,key,type,opt){
-    return '<div class="field"><label>'+label+(opt?' <span class="opt">(opcional)</span>':'')+'</label>'+
+  function f(label,key,type){
+    return '<div class="field"><label>'+label+'</label>'+
       '<input type="'+(type||"text")+'" data-k="'+key+'" value="'+esc(A[key]||"")+'"></div>';
   }
   return '<p class="step-tag">Paso 1</p><h3 class="q">Información de contacto</h3>'+
     '<p class="hint">Confidencial. Solo la usamos para dar seguimiento y entregar tu premio.</p>'+
-    '<div class="grid2">'+f("Nombre","nombre","text",false)+f("Empresa","empresa","text",false)+'</div>'+
-    '<div class="grid2">'+f("Correo electrónico","correo","email",false)+f("Número de teléfono","telefono","tel",false)+'</div>'+
-    '<div class="grid2">'+f("Ciudad/Localidad","ciudad","text",true)+f("Estado/Provincia","estado","text",true)+'</div>'+
-    '<div class="grid2">'+f("Dirección","direccion","text",true)+f("Dirección 2","direccion2","text",true)+'</div>'+
-    '<div class="grid2">'+f("Código postal","cp","text",true)+f("País","pais","text",true)+'</div>';
+    '<div class="grid2">'+f("Nombre","nombre","text")+f("Empresa","empresa","text")+'</div>'+
+    '<div class="grid2">'+f("Correo electrónico","correo","email")+f("Número de teléfono","telefono","tel")+'</div>';
 }
 function scale(key,min,max,leftLbl,rightLbl){
   var b='<div class="scale" data-scale="'+key+'">';
@@ -490,14 +567,14 @@ function viewComentario(){
 function wireSurvey(n,id){
   // inputs de texto
   n.querySelectorAll("[data-k]").forEach(function(inp){
-    inp.oninput=function(){A[inp.getAttribute("data-k")]=inp.value;};
+    inp.oninput=function(){A[inp.getAttribute("data-k")]=inp.value;saveDraft();};
   });
   // escalas simples
   n.querySelectorAll("[data-scale]").forEach(function(sc){
     var key=sc.getAttribute("data-scale");
     sc.querySelectorAll("button").forEach(function(bt){
       bt.onclick=function(){A[key]=parseInt(bt.getAttribute("data-v"),10);
-        sc.querySelectorAll("button").forEach(function(x){x.classList.remove("on");});bt.classList.add("on");};
+        sc.querySelectorAll("button").forEach(function(x){x.classList.remove("on");});bt.classList.add("on");saveDraft();};
     });
   });
   // escalas de empresa (proveedor)
@@ -505,13 +582,13 @@ function wireSurvey(n,id){
     var i=parseInt(sc.getAttribute("data-scale-emp"),10);
     sc.querySelectorAll("button").forEach(function(bt){
       bt.onclick=function(){A.emp[i].cal=parseInt(bt.getAttribute("data-v"),10);
-        sc.querySelectorAll("button").forEach(function(x){x.classList.remove("on");});bt.classList.add("on");};
+        sc.querySelectorAll("button").forEach(function(x){x.classList.remove("on");});bt.classList.add("on");saveDraft();};
     });
   });
   // selects de empresa
   n.querySelectorAll("[data-emp]").forEach(function(sel){
     var i=parseInt(sel.getAttribute("data-emp"),10);
-    sel.onchange=function(){A.emp[i].name=sel.value;};
+    sel.onchange=function(){A.emp[i].name=sel.value;saveDraft();};
   });
   // radios
   n.querySelectorAll("[data-radio]").forEach(function(grp){
@@ -524,12 +601,13 @@ function wireSurvey(n,id){
         // mostrar/ocultar "otro"
         var other=n.querySelector('[data-other="'+name+'"]');
         if(other){ other.classList.toggle("hidden",v!=="Otro (especifique)"); }
+        saveDraft();
       };
     });
   });
   // checkboxes beneficios
   n.querySelectorAll('[data-checks="beneficios"] .opt-row').forEach(function(rw){
-    rw.onclick=function(){var k=rw.getAttribute("data-v");A.beneficios[k]=!A.beneficios[k];rw.classList.toggle("on",A.beneficios[k]);};
+    rw.onclick=function(){var k=rw.getAttribute("data-v");A.beneficios[k]=!A.beneficios[k];rw.classList.toggle("on",A.beneficios[k]);saveDraft();};
   });
 }
 
@@ -539,17 +617,10 @@ function validateStep(id){
 }
 
 /* ================================================================
-   7) RULETA (brutalism) — un solo premio: vale estacionamiento
+   7) RULETA (brutalism) — premio real (estacionamiento) + segmentos
+      de consolación sin premio, estilo ruleta de casino.
    ================================================================ */
 function availablePrizes(){return CFG.prizes.filter(function(p){return (p.stock===null||p.stock>0)&&(parseFloat(p.weight)||0)>0;});}
-
-/* Decide si el participante gana o no, según winPercent */
-function shouldWin(){
-  var pct = parseFloat(CFG.winPercent);
-  if(isNaN(pct) || pct <= 0) return false;
-  if(pct >= 100) return true;
-  return (Math.random() * 100) < pct;
-}
 
 function pickWeighted(list){
   var total=list.reduce(function(s,p){return s+(parseFloat(p.weight)||0);},0);
@@ -562,8 +633,8 @@ function pickWeighted(list){
    Con un único premio, se dibujan varias porciones decorativas
    para que la rueda se vea completa y gire bien. */
 function wheelSegments(prizes){
-  if(prizes.length>1) return prizes.map(function(p){return {name:p.name};});
-  var labels=["PREMIO","GIRA","SUERTE","EXPO","PREMIO","GIRA","SUERTE","EXPO"];
+  if(prizes.length>1) return prizes.map(function(p){return {name:p.label||p.name};});
+  var labels=["PREMIOS","GRACIAS","PREMIOS","GRACIAS","PREMIOS","GRACIAS","PREMIOS","GRACIAS"];
   return labels.map(function(l){return {name:l};});
 }
 
@@ -584,37 +655,53 @@ function renderRoulette(){
   var group=n.querySelector("#wheelGroup");
   var btn=n.querySelector("#spinBtn");
   var res=n.querySelector("#spinResult");
-  var totalRot=0, spinning=false;
+  var totalRot=0, isSpinning=false;
 
   btn.onclick=function(){
-    if(spinning) return;
-    /* Recargar CFG desde localStorage para que los cambios del panel tomen efecto */
-    CFG=loadCfg();
+    // 1) Bloqueo por estado + premios disponibles
+    if(isSpinning) return;
     var avail=availablePrizes();
     if(!avail.length){toast("No hay premios configurados");return;}
-    spinning=true;btn.disabled=true;res.innerHTML="";
-    /* Decidir si gana según winPercent */
-    var wins = shouldWin();
-    var winner;
-    if(wins){
-      winner = pickWeighted(avail);
-    } else {
-      winner = {name:"¡Sigue intentando!", weight:0, stock:null, isPrize:false};
-    }
+    isSpinning=true; btn.disabled=true; res.innerHTML="";
+
+    // 2) Ganador calculado AHORA, ANTES de animar (RNG ponderado)
+    var winner=pickWeighted(avail);
+
+    // 3) Ángulo exacto del segmento ganador (puntero arriba = centro de rebanada)
     var N=segs.length, seg=360/N;
-    var landIdx = Math.floor(Math.random()*N);
+    var landIdx = (CFG.prizes.length>1) ? CFG.prizes.indexOf(winner) : Math.floor(Math.random()*N);
     if(landIdx<0) landIdx=0;
     var center=landIdx*seg+seg/2;
     var jitter=(Math.random()-0.5)*seg*0.6;
     var target=(360-center)-jitter;
-    totalRot+=360*6+(((target- (totalRot%360))%360)+360)%360;
-    group.style.transform="rotate("+totalRot+"deg)";
-    setTimeout(function(){
-      spinning=false;
+
+    // 4) Ángulo final = ángulo del premio + 5 a 8 vueltas completas de 360°
+    var extra=360*(5+Math.floor(Math.random()*4));
+    var phase=(((target-(totalRot%360))%360)+360)%360;
+    var from=totalRot, to=totalRot+extra+phase;
+    totalRot=to;
+
+    // 5) Desaceleración gradual (Quartic Ease-Out) en 4-6 s
+    var dur=4000+Math.random()*2000;
+    animateSpin(group,from,to,dur,function(){
+      isSpinning=false;
       wonPrize=winner;
-      showSpinResult(res,winner);
-    },5200);
+      showSpinResult(res,winner); // onSpinComplete: animación terminó al 100%
+    });
   };
+}
+
+function quarticEaseOut(t){return 1-Math.pow(1-t,4);}
+
+function animateSpin(group,from,to,dur,onComplete){
+  var t0=performance.now();
+  (function frame(now){
+    var p=Math.min(1,(now-t0)/dur);
+    var e=quarticEaseOut(p);
+    group.style.transform="rotate("+(from+(to-from)*e)+"deg)";
+    if(p<1){requestAnimationFrame(frame);}
+    else if(onComplete){onComplete();}
+  })(t0);
 }
 
 function wheelSVG(segs){
@@ -627,12 +714,25 @@ function wheelSVG(segs){
     var large=seg>180?1:0;
     var col=WHEEL_COLORS[i%WHEEL_COLORS.length];
     paths+='<path d="M'+cx+','+cy+' L'+x0.toFixed(1)+','+y0.toFixed(1)+' A'+r+','+r+' 0 '+large+',1 '+x1.toFixed(1)+','+y1.toFixed(1)+' Z" fill="'+col+'" stroke="#111" stroke-width="3"/>';
-    var mid=(i*seg+seg/2-90)*Math.PI/180;
-    var lr=r*0.62, lx=cx+lr*Math.cos(mid), ly=cy+lr*Math.sin(mid);
-    var rot=(i*seg+seg/2);
-    var light=(col==="#111111"||col==="#2962ff"||col==="#ff5252");
-    var nm=segs[i].name; if(nm.length>16) nm=nm.slice(0,15)+"…";
-    labels+='<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" fill="'+(light?"#fff":"#111")+'" font-size="13" font-weight="800" font-family="Courier New, monospace" text-anchor="middle" transform="rotate('+rot.toFixed(1)+','+lx.toFixed(1)+','+ly.toFixed(1)+')">'+esc(nm)+'</text>';
+    var light=isDark(col);
+    var nm=segs[i].name.toUpperCase(); if(nm.length>18) nm=nm.slice(0,17)+"…";
+    /* Texto RADIAL como PALABRA COMPLETA (una sola línea, se lee de centro
+       hacia afuera). En la mitad izquierda giramos 180° para que no quede
+       de cabeza y siempre se lea derecha. */
+    var rInner=48, rRim=190;
+    var midDeg=i*seg+seg/2-90;                 // bisector: 0°=este, horario
+    var rMid=(rInner+rRim)/2;                   // radio donde centramos la palabra
+    var tx=cx+rMid*Math.cos(midDeg*Math.PI/180);
+    var ty=cy+rMid*Math.sin(midDeg*Math.PI/180);
+    var flip=(Math.cos(midDeg*Math.PI/180)<0)?180:0;  // mitad izquierda → voltea
+    var fs=15;
+    var avail=rRim-rInner-14;                    // largo radial disponible
+    var estW=nm.length*fs*0.60;                  // ancho estimado del texto
+    var lenAttr=estW>avail?' textLength="'+avail.toFixed(0)+'" lengthAdjust="spacingAndGlyphs"':'';
+    labels+='<text x="'+tx.toFixed(1)+'" y="'+ty.toFixed(1)+'" fill="'+(light?"#fff":"#111")+'"'+
+            ' font-size="'+fs+'" font-weight="800" font-family="Arial Narrow, Arial, sans-serif"'+
+            ' letter-spacing="1" text-anchor="middle" dominant-baseline="central"'+lenAttr+
+            ' transform="rotate('+(midDeg+flip).toFixed(1)+','+tx.toFixed(1)+','+ty.toFixed(1)+')">'+esc(nm)+'</text>';
   }
   return '<svg viewBox="0 0 400 400"><g id="wheelGroup"><circle cx="200" cy="200" r="198" fill="#111"/>'+paths+labels+'</g></svg>';
 }
@@ -666,6 +766,10 @@ function commitResponse(winner){
     if(idx>=0){CFG.prizes[idx].stock=Math.max(0,CFG.prizes[idx].stock-1);saveCfg(CFG);}
   }
   var h=loadHist(); h.push(entry); saveHist(h);
+  clearDraft();
+  // Autoexportar respaldo cada N respuestas (configurable en Ajustes)
+  var every=parseInt(CFG.autoExportEvery,10)||0;
+  if(every>0 && h.length % every===0){ try{ exportExcel(); toast("Respaldo automático exportado ("+h.length+" respuestas)"); }catch(e){} }
   screenThanks();
 }
 
@@ -724,6 +828,7 @@ function renderAdmin(){
   var rows=CFG.prizes.map(function(p,i){
     return '<tr>'+
       '<td><input data-i="'+i+'" data-f="name" value="'+esc(p.name)+'"></td>'+
+      '<td><input data-i="'+i+'" data-f="label" value="'+esc(p.label||"")+'" placeholder="(usa el nombre)" style="max-width:130px"></td>'+
       '<td style="width:74px"><input class="num" data-i="'+i+'" data-f="weight" type="number" min="0" value="'+esc(p.weight)+'"></td>'+
       '<td style="width:80px"><input class="num" data-i="'+i+'" data-f="stock" type="number" min="0" value="'+esc(p.stock)+'"></td>'+
       '<td style="width:54px;text-align:center"><input type="checkbox" data-i="'+i+'" data-f="isPrize" '+(p.isPrize?"checked":"")+' style="width:20px;height:20px"></td>'+
@@ -742,12 +847,9 @@ function renderAdmin(){
 
       '<div class="card">'+
         '<p class="ctag">Premios de la ruleta</p>'+
-        '<p class="mini-note">La ruleta entrega: vale por estacionamiento gratis. Ajusta el <b>% de probabilidad de ganar</b> abajo. Peso = probabilidad relativa entre premios. Stock = cantidad disponible. Premio = cuenta como premio ganado (se guarda en custom_1).</p>'+
-        '<div class="field" style="margin-bottom:18px"><label>Probabilidad de ganar premio (%)</label>'+
-          '<input type="number" id="winPctIn" min="0" max="100" step="1" value="'+esc(CFG.winPercent)+'" style="max-width:120px">'+
-          '<p class="mini-note" style="margin-top:6px">Ejemplo: 10 = 10% de probabilidad, 25 = 25%. El resto de giros salen "¡Sigue intentando!"</p>'+
-        '</div>'+
-        '<table class="mtbl"><thead><tr><th>Nombre</th><th>Peso</th><th>Stock</th><th>Premio</th><th></th></tr></thead>'+
+        '<p class="mini-note">La ruleta tiene un premio real (cupón de estacionamiento) y segmentos de consolación sin premio. Peso = probabilidad relativa. Stock = cantidad disponible. Premio = cuenta como premio ganado (se guarda en custom_1).</p>'+
+        '<p class="mini-note"><b>Nombre</b> = texto completo que se muestra en el resultado. <b>Etiqueta</b> = texto corto que se dibuja en la ruleta (déjala vacía para usar el nombre).</p>'+
+        '<table class="mtbl"><thead><tr><th>Nombre</th><th>Etiqueta</th><th>Peso</th><th>Stock</th><th>Premio</th><th></th></tr></thead>'+
         '<tbody id="prizeBody">'+rows+'</tbody></table>'+
         '<button class="btn-sm btn-outline" id="addPrize">+ Agregar premio</button>'+
       '</div>'+
@@ -756,12 +858,14 @@ function renderAdmin(){
         '<p class="ctag">Ajustes</p>'+
         '<div class="field"><label>Nombre del evento</label><input type="text" id="evtTitle" value="'+esc(CFG.eventTitle)+'"></div>'+
         '<div class="field"><label>PIN de acceso (4 dígitos)</label><input type="text" id="pinIn" maxlength="4" value="'+esc(CFG.pin)+'"></div>'+
+        '<div class="field"><label>Autoexportar Excel cada N respuestas <span class="opt">(0 = desactivado)</span></label><input type="number" min="0" id="autoExp" value="'+esc(CFG.autoExportEvery)+'"></div>'+
         '<button class="btn-sm btn-dark" id="saveCfg">Guardar ajustes</button>'+
       '</div>'+
 
       '<div class="card">'+
         '<p class="ctag">Exportar / Datos</p>'+
         '<p class="mini-note">Genera un Excel con el mismo formato que “Encuesta de satisfacción Expo PyME.xlsx” (49 columnas). El premio va en custom_1.</p>'+
+        '<p class="mini-note">Los datos se guardan en este dispositivo por partida doble: <b>localStorage</b> + <b>IndexedDB</b> (respaldo durable), y se pide almacenamiento persistente al navegador. Aun así, para no depender del dispositivo, exporta a Excel con frecuencia o usa la autoexportación.</p>'+
         '<div class="row2">'+
           '<button class="btn-sm btn-dark" id="exportBtn">⬇ Exportar Excel</button>'+
           '<button class="btn-sm btn-danger" id="clearBtn">🗑 Borrar histórico</button>'+
@@ -785,23 +889,11 @@ function renderAdmin(){
   n.querySelectorAll("[data-del]").forEach(function(b){
     b.onclick=function(){CFG.prizes.splice(+b.getAttribute("data-del"),1);saveCfg(CFG);renderAdmin();};
   });
-  n.querySelector("#addPrize").onclick=function(){CFG.prizes.push({name:"Nuevo premio",weight:10,stock:10,isPrize:true});saveCfg(CFG);renderAdmin();};
-  /* Guardar winPercent en tiempo real */
-  var winPctInput=n.querySelector("#winPctIn");
-  if(winPctInput){
-    winPctInput.onchange=function(){
-      var v=parseFloat(winPctInput.value);
-      if(isNaN(v)||v<0) v=0; if(v>100) v=100;
-      CFG.winPercent=v; winPctInput.value=v;
-      saveCfg(CFG); toast("Probabilidad actualizada: "+v+"%");
-    };
-  }
+  n.querySelector("#addPrize").onclick=function(){CFG.prizes.push({name:"Nuevo premio",label:"PREMIO",weight:10,stock:10,isPrize:true});saveCfg(CFG);renderAdmin();};
   n.querySelector("#saveCfg").onclick=function(){
     CFG.eventTitle=n.querySelector("#evtTitle").value||"Expo PyME";
     var p=n.querySelector("#pinIn").value.replace(/\D/g,"").slice(0,4); if(p.length===4)CFG.pin=p;
-    /* Guardar también winPercent al guardar ajustes */
-    var wp=parseFloat(n.querySelector("#winPctIn").value);
-    if(!isNaN(wp)&&wp>=0&&wp<=100) CFG.winPercent=wp;
+    CFG.autoExportEvery=Math.max(0,parseInt(n.querySelector("#autoExp").value,10)||0);
     saveCfg(CFG);toast("Ajustes guardados");
   };
   n.querySelector("#exportBtn").onclick=function(){exportExcel();};
@@ -907,25 +999,22 @@ function excelSerial(dt){
 }
 function sheetXml(matrix){
   var lastCol=colLetter(matrix[0].length-1), lastRow=matrix.length;
-  /* Usar array de chunks en vez de concatenar un string enorme.
-     Esto evita que el navegador crashee con 200-500+ respuestas. */
-  var parts=[];
-  parts.push('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>');
-  parts.push('<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:'+lastCol+lastRow+'"/><sheetData>');
+  var out='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><dimension ref="A1:'+lastCol+lastRow+'"/><sheetData>';
   for(var r=0;r<matrix.length;r++){
-    parts.push('<row r="'+(r+1)+'">');
+    out+='<row r="'+(r+1)+'">';
     var row=matrix[r];
     for(var c=0;c<row.length;c++){
       var v=row[c], ref=colLetter(c)+(r+1);
       if(v===""||v==null) continue;
-      if(v&&v.__num!=null){ parts.push('<c r="'+ref+'"><v>'+v.__num+'</v></c>'); }
-      else if(v&&v.__date!=null){ parts.push('<c r="'+ref+'" s="1"><v>'+excelSerial(v.__date)+'</v></c>'); }
-      else{ parts.push('<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(v)+'</t></is></c>'); }
+      if(v&&v.__num!=null){ out+='<c r="'+ref+'"><v>'+v.__num+'</v></c>'; }
+      else if(v&&v.__date!=null){ out+='<c r="'+ref+'" s="1"><v>'+excelSerial(v.__date)+'</v></c>'; }
+      else{ out+='<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(v)+'</t></is></c>'; }
     }
-    parts.push('</row>');
+    out+='</row>';
   }
-  parts.push('</sheetData></worksheet>');
-  return parts.join('');
+  out+='</sheetData></worksheet>';
+  return out;
 }
 function buildXlsx(matrix){
   var files=[
@@ -999,6 +1088,7 @@ function zipStore(files){
    11) ARRANQUE
    ================================================================ */
 document.getElementById("cogBtn").onclick=askPin;
+initPersistence();
 screenWelcome();
 </script>
 </body>
