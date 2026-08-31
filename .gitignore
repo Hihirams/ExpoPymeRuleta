@@ -1,0 +1,19 @@
+# Datos del evento y artefactos locales (NO subir)
+respuestas.db
+respuestas.db-shm
+respuestas.db-wal
+*.db
+*.db-shm
+*.db-wal
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+configurar_loopback.log
+
+# Exports generados por la app (el original con acento SÍ se sube)
+img/Encuesta de satisfaccion Expo PyME *.xlsx
+Encuesta de satisfaccion Expo PyME *.xlsx

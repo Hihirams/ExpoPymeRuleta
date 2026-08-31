@@ -1,0 +1,9 @@
+# Dependencias del servidor offline Expo PyME.
+# Instalar UNA sola vez, CON internet, antes del evento:
+#     pip install -r requirements.txt
+#
+# El servidor (http.server) y la base de datos (sqlite3) ya vienen con Python;
+# no requieren instalacion.
+
+openpyxl>=3.1     # Exportar respuestas a Excel (49 columnas)
+qrcode>=7.4       # Dibujar el QR en el panel y la terminal (opcional pero recomendado)
