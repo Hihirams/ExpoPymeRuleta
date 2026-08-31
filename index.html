@@ -362,7 +362,7 @@ var DEFAULT_PRIZES = [
   {name:"Mejor suerte",             label:"SUERTE",   weight:8,   stock:null,   isPrize:false},
   {name:"Sigue participando",       label:"GRACIAS",  weight:8,   stock:null,   isPrize:false},
   {name:"Sin premio esta vez",      label:"CASI",     weight:8,   stock:null,   isPrize:false},
-  {name:"Gracias por tu visita",    label:"¡PREMIO!", weight:8,   stock:null,   isPrize:false},
+  {name:"Cupón de Estacionamiento", label:"¡PREMIO!", weight:8,   stock:99999,  isPrize:true },
   {name:"Inténtalo de nuevo",       label:"¡CASI!",   weight:8,   stock:null,   isPrize:false},
   {name:"Participa de nuevo",       label:"ÁNIMO",    weight:8,   stock:null,   isPrize:false},
   {name:"Casi lo logras",           label:"GRACIAS",  weight:7,   stock:null,   isPrize:false},
@@ -373,7 +373,7 @@ var DEFAULT_PRIZES = [
 /* ----------------------------------------------------------------
    2) ALMACENAMIENTO (localStorage)
    ---------------------------------------------------------------- */
-var LS_CFG="expopyme_cfg_v2", LS_HIST="expopyme_hist_v1", LS_DRAFT="expopyme_draft_v1", LS_QUEUE="expopyme_queue_v1";
+var LS_CFG="expopyme_cfg_v3", LS_HIST="expopyme_hist_v1", LS_DRAFT="expopyme_draft_v1", LS_QUEUE="expopyme_queue_v1";
 var WHEEL_COLORS=["#8c1d40","#e11b22","#111111","#c21e56","#6e1732","#e11b22","#111111","#a3234c","#7a1230","#d61a29","#4a0d1f","#b0182a"];
 
 function loadCfg(){
