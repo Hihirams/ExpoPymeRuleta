@@ -182,9 +182,10 @@ input,select,textarea{font-family:inherit;font-size:16px}
    ESTILO BRUTALISM  (SOLO la ruleta)
    ============================================================ */
 .brutal{
+  position:relative;
   background:#e11b22;color:#111;min-height:100vh;
   font-family:"Courier New",ui-monospace,monospace;
-  padding:24px 18px 60px;display:flex;flex-direction:column;align-items:center;
+  padding:170px 18px 60px;display:flex;flex-direction:column;align-items:center;
 }
 .brutal .bwrap{width:100%;max-width:780px}
 .brutal h2{
@@ -192,7 +193,8 @@ input,select,textarea{font-family:inherit;font-size:16px}
   -webkit-text-stroke:1px #111;
 }
 .brutal .sub{font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:2px;margin:0 0 20px}
-.brutal-logo{display:block;height:60px;width:auto;max-width:78%;margin:0 0 14px;filter:drop-shadow(3px 3px 0 #111)}
+/* Mismo tamaño y posición que el logo del home (.brand-logo) */
+.brutal-logo{position:absolute;top:22px;left:26px;z-index:2;display:block;height:128px;width:auto;max-width:min(440px,82vw);object-fit:contain;filter:drop-shadow(0 4px 18px rgba(0,0,0,.35))}
 .brutal .panel{background:#fff;border:4px solid #111;box-shadow:8px 8px 0 #111;padding:18px;margin-bottom:18px}
 .brutal .panel.red{background:#ff5252;color:#fff}
 .brutal .panel.blue{background:#2962ff;color:#fff}
@@ -270,7 +272,8 @@ input,select,textarea{font-family:inherit;font-size:16px}
   .hero-full .hsub{letter-spacing:.32em}
   .btn-hero{padding:16px 32px}
   .row2{grid-template-columns:1fr}
-  .brutal{padding:18px 12px 48px}
+  .brutal{padding:100px 12px 48px}
+  .brutal-logo{height:72px;top:16px;left:16px}
   .brutal h2{font-size:30px}
   .brutal .sub{letter-spacing:1.4px}
   .bbtn{font-size:20px;padding:16px}
@@ -354,23 +357,23 @@ var BENEFICIOS = [
    Pesos suman 100 -> estacionamiento = 15%. */
 var DEFAULT_PRIZES = [
   {name:"Cupón de Estacionamiento", label:"¡PREMIO!", weight:15,  stock:99999, isPrize:true },
-  {name:"Gracias por participar",   label:"GRACIAS",  weight:10,  stock:null,   isPrize:false},
+  {name:"Gracias por participar",   label:"¡CASI!",   weight:10,  stock:null,   isPrize:false},
   {name:"Vuelve a intentarlo",      label:"¡VUELVE!", weight:10,  stock:null,   isPrize:false},
   {name:"Mejor suerte",             label:"SUERTE",   weight:8,   stock:null,   isPrize:false},
-  {name:"Sigue participando",       label:"SIGUE",    weight:8,   stock:null,   isPrize:false},
+  {name:"Sigue participando",       label:"GRACIAS",  weight:8,   stock:null,   isPrize:false},
   {name:"Sin premio esta vez",      label:"CASI",     weight:8,   stock:null,   isPrize:false},
-  {name:"Gracias por tu visita",    label:"VISITA",   weight:8,   stock:null,   isPrize:false},
-  {name:"Inténtalo de nuevo",       label:"INTENTA",  weight:8,   stock:null,   isPrize:false},
+  {name:"Gracias por tu visita",    label:"¡PREMIO!", weight:8,   stock:null,   isPrize:false},
+  {name:"Inténtalo de nuevo",       label:"¡CASI!",   weight:8,   stock:null,   isPrize:false},
   {name:"Participa de nuevo",       label:"ÁNIMO",    weight:8,   stock:null,   isPrize:false},
-  {name:"Casi lo logras",           label:"¡CASI!",   weight:7,   stock:null,   isPrize:false},
-  {name:"Suerte la próxima",        label:"OTRA VEZ", weight:5,   stock:null,   isPrize:false},
+  {name:"Casi lo logras",           label:"GRACIAS",  weight:7,   stock:null,   isPrize:false},
+  {name:"Suerte la próxima",        label:"CASI",     weight:5,   stock:null,   isPrize:false},
   {name:"Gracias por venir",        label:"GRACIAS",  weight:5,   stock:null,   isPrize:false}
 ];
 
 /* ----------------------------------------------------------------
    2) ALMACENAMIENTO (localStorage)
    ---------------------------------------------------------------- */
-var LS_CFG="expopyme_cfg_v1", LS_HIST="expopyme_hist_v1", LS_DRAFT="expopyme_draft_v1", LS_QUEUE="expopyme_queue_v1";
+var LS_CFG="expopyme_cfg_v2", LS_HIST="expopyme_hist_v1", LS_DRAFT="expopyme_draft_v1", LS_QUEUE="expopyme_queue_v1";
 var WHEEL_COLORS=["#8c1d40","#e11b22","#111111","#c21e56","#6e1732","#e11b22","#111111","#a3234c","#7a1230","#d61a29","#4a0d1f","#b0182a"];
 
 function loadCfg(){
@@ -604,14 +607,14 @@ function renderSurvey(){
 
 /* --- Vistas de cada paso --- */
 function viewContacto(){
-  function f(label,key,type){
-    return '<div class="field"><label>'+label+'</label>'+
+  function f(label,key,type,req){
+    return '<div class="field"><label>'+label+(req?' <span style="color:var(--brand-2)">*</span>':'')+'</label>'+
       '<input type="'+(type||"text")+'" data-k="'+key+'" value="'+esc(A[key]||"")+'"></div>';
   }
   return '<p class="step-tag">Paso 1</p><h3 class="q">Información de contacto</h3>'+
-    '<p class="hint">Confidencial. Solo la usamos para dar seguimiento y entregar tu premio.</p>'+
-    '<div class="grid2">'+f("Nombre","nombre","text")+f("Empresa","empresa","text")+'</div>'+
-    '<div class="grid2">'+f("Correo electrónico","correo","email")+f("Número de teléfono","telefono","tel")+'</div>';
+    '<p class="hint">Confidencial. Solo la usamos para dar seguimiento y entregar tu premio. Los campos con <span style="color:var(--brand-2)">*</span> son obligatorios.</p>'+
+    '<div class="grid2">'+f("Nombre","nombre","text",true)+f("Empresa","empresa","text")+'</div>'+
+    '<div class="grid2">'+f("Correo electrónico","correo","email",true)+f("Número de teléfono","telefono","tel")+'</div>';
 }
 function scale(key,min,max,leftLbl,rightLbl){
   var b='<div class="scale" data-scale="'+key+'">';
@@ -743,6 +746,12 @@ function wireSurvey(n,id){
 }
 
 function validateStep(id){
+  if(id==="contacto"){
+    if(!A.nombre||!String(A.nombre).trim()){toast("Escribe tu nombre para continuar");return false;}
+    if(!A.correo||!String(A.correo).trim()){toast("Escribe tu correo para continuar");return false;}
+    if(!/^\S+@\S+\.\S+$/.test(String(A.correo).trim())){toast("Escribe un correo válido");return false;}
+    return true;
+  }
   if(id==="rol" && !A.rol){toast("Selecciona tu rol para continuar");return false;}
   return true; // el resto es opcional para agilizar el kiosco
 }
