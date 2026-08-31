@@ -154,6 +154,49 @@ class ServidorTest(unittest.TestCase):
         code, _, _ = _req(self.base + "/img/../servidor.py")
         self.assertIn(code, (403, 404))
 
+    def test_11_config_vacia(self):
+        # Sin config guardada, el servidor devuelve null (los clientes usan
+        # los valores por defecto del código).
+        code, body, _ = _req(self.base + "/api/config")
+        self.assertEqual(code, 200)
+        self.assertIsNone(json.loads(body)["config"])
+
+    def test_12_config_pin_incorrecto(self):
+        cfg = {"prizes": [{"name": "X", "label": "X", "weight": 5,
+                           "stock": 10, "isPrize": True}], "pin": "1234"}
+        code, _, _ = _req(self.base + "/api/config", "POST",
+                          {"pin": "9999", "config": cfg})
+        self.assertEqual(code, 403)  # PIN equivocado -> rechazado
+
+    def test_13_config_guardar_y_leer(self):
+        cfg = {"prizes": [
+                   {"name": "Cupón", "label": "¡PREMIO!", "weight": 20,
+                    "stock": 100, "isPrize": True},
+                   {"name": "Casi", "label": "¡CASI!", "weight": 80,
+                    "stock": None, "isPrize": False}],
+               "eventTitle": "Expo PyME", "autoExportEvery": 10, "pin": "1234"}
+        code, body, _ = _req(self.base + "/api/config", "POST",
+                             {"pin": "1234", "config": cfg})
+        self.assertEqual(code, 200)
+        self.assertTrue(json.loads(body)["ok"])
+        # Se lee de vuelta igual.
+        code, body, _ = _req(self.base + "/api/config")
+        got = json.loads(body)["config"]
+        self.assertEqual(got["prizes"][0]["weight"], 20)
+        self.assertEqual(got["pin"], "1234")
+
+    def test_14_config_cambio_de_pin(self):
+        # Cambiar el PIN autenticando con el PIN anterior (1234 de test_13).
+        cfg = {"prizes": [{"name": "Y", "label": "Y", "weight": 1,
+                           "stock": 1, "isPrize": False}], "pin": "4321"}
+        code, _, _ = _req(self.base + "/api/config", "POST",
+                          {"pin": "1234", "config": cfg})
+        self.assertEqual(code, 200)
+        # Ahora el PIN válido es 4321; el viejo ya no sirve.
+        code, _, _ = _req(self.base + "/api/config", "POST",
+                          {"pin": "1234", "config": cfg})
+        self.assertEqual(code, 403)
+
     def test_10_qr(self):
         code, body, hdr = _req(self.base + "/qr.png")
         if servidor.HAS_QRCODE:

@@ -149,6 +149,25 @@ También puedes exportar entrando a `http://localhost:8080/export.xlsx`.
 
 ---
 
+## 6b) Controlar la probabilidad de premio EN VIVO (todos los celulares)
+
+La configuración de la ruleta vive en el **servidor**, así que lo que cambies en
+el admin de la laptop se aplica a **todos los celulares** en ≤15 segundos.
+
+1. En la laptop (página servida), toca el **engrane** → escribe el **PIN**.
+2. En la tabla de premios, cambia la columna **Peso**:
+   - Peso más alto en los segmentos de premio = **más gente gana**.
+   - Peso más bajo = **menos gente gana**.
+   - `probabilidad = (suma de pesos de los segmentos "Premio") ÷ (suma de todos los pesos)`.
+3. El cambio se guarda solo y **cada celular lo toma en su siguiente giro**.
+
+Ejemplo: si sientes que están ganando demasiado, baja el peso de los premios
+(p. ej. de 15/8 a 5/3) y en segundos todos giran con menos probabilidad. Está
+protegido con tu **PIN**: solo quien lo sepa puede cambiarlo.
+
+> Nota: el **stock** (cantidad) se cuenta por dispositivo; para el control de
+> "cuánta gente gana" usa el **Peso**, que sí es central.
+
 ## 7) Dónde están los datos y respaldos
 
 - **Todo** se guarda de forma centralizada en **`respuestas.db`** (SQLite), en la

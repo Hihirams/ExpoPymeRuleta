@@ -449,6 +449,7 @@ var CFG=loadCfg();
 var SYNC_ON = (location.protocol==="http:"||location.protocol==="https:");
 var SERVER_OK = false;   // se confirma con /api/health. false = modo kiosco (solo este dispositivo)
 var SYNC_URL = "/api/respuesta";
+var CONFIG_URL = "/api/config";
 
 function loadQueue(){try{return JSON.parse(localStorage.getItem(LS_QUEUE))||[];}catch(e){return [];}}
 function saveQueue(q){try{localStorage.setItem(LS_QUEUE,JSON.stringify(q));}catch(e){}}
@@ -489,6 +490,50 @@ function syncEntry(entry){
     if(!ok){ queueEntry(entry); }     // falló → a la cola para reintentar
     else{ flushQueue(); }             // ok → aprovecha para vaciar pendientes
   });
+}
+
+/* ---- CONFIGURACIÓN CENTRAL (la ruleta/probabilidades para TODOS) ----
+   La config vive en el servidor. Cada dispositivo la lee al cargar y la
+   revisa cada 15s, así lo que el admin cambia en la laptop se aplica a
+   todos los celulares en el siguiente giro. El admin la PUBLICA al servidor
+   (protegido con el PIN). */
+var _lastCfgJson=null;
+
+/* Adopta una config recibida del servidor en el CFG local. */
+function adoptConfig(c){
+  if(!c) return false;
+  var js=JSON.stringify(c);
+  if(js===_lastCfgJson) return false;   // sin cambios
+  _lastCfgJson=js;
+  if(Array.isArray(c.prizes)) CFG.prizes=c.prizes;
+  if(c.eventTitle) CFG.eventTitle=c.eventTitle;
+  if(c.pin) CFG.pin=c.pin;
+  if(c.autoExportEvery!=null) CFG.autoExportEvery=c.autoExportEvery;
+  saveCfg(CFG);                          // persiste local (no re-publica)
+  return true;
+}
+
+/* Lee la config del servidor. Si el servidor aún no tiene, se usan los
+   valores por defecto del código. */
+function fetchServerConfig(){
+  if(!SERVER_OK) return;
+  fetch(CONFIG_URL,{cache:"no-store"})
+    .then(function(r){return r.json();})
+    .then(function(d){ if(d&&d.config) adoptConfig(d.config); })
+    .catch(function(){});
+}
+
+/* El admin publica la config al servidor (para todos). authPin autentica el
+   cambio (importante al cambiar el propio PIN: se usa el anterior). */
+function pushConfig(authPin){
+  if(!SERVER_OK) return;
+  var body={ pin:(authPin!=null?authPin:CFG.pin),
+             config:{ prizes:CFG.prizes, eventTitle:CFG.eventTitle,
+                      autoExportEvery:CFG.autoExportEvery, pin:CFG.pin } };
+  _lastCfgJson=JSON.stringify(body.config);   // evita re-adoptar lo que acabo de enviar
+  fetch(CONFIG_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+    .then(function(r){ if(!r.ok){ toast("No se pudo sincronizar (¿PIN?)"); } })
+    .catch(function(){ toast("No se pudo sincronizar la configuración"); });
 }
 
 /* ----------------------------------------------------------------
@@ -1027,18 +1072,19 @@ function renderAdmin(){
       if(f==="isPrize"){CFG.prizes[i].isPrize=inp.checked;}
       else if(f==="weight"||f==="stock"){CFG.prizes[i][f]=parseFloat(inp.value)||0;}
       else{CFG.prizes[i][f]=inp.value;}
-      saveCfg(CFG);
+      saveCfg(CFG); pushConfig();          // aplica a TODOS los dispositivos
     };
   });
   n.querySelectorAll("[data-del]").forEach(function(b){
-    b.onclick=function(){CFG.prizes.splice(+b.getAttribute("data-del"),1);saveCfg(CFG);renderAdmin();};
+    b.onclick=function(){CFG.prizes.splice(+b.getAttribute("data-del"),1);saveCfg(CFG);pushConfig();renderAdmin();};
   });
-  n.querySelector("#addPrize").onclick=function(){CFG.prizes.push({name:"Nuevo premio",label:"PREMIO",weight:10,stock:10,isPrize:true});saveCfg(CFG);renderAdmin();};
+  n.querySelector("#addPrize").onclick=function(){CFG.prizes.push({name:"Nuevo premio",label:"PREMIO",weight:10,stock:10,isPrize:true});saveCfg(CFG);pushConfig();renderAdmin();};
   n.querySelector("#saveCfg").onclick=function(){
+    var authPin=CFG.pin;                   // PIN anterior (autentica el cambio en el servidor)
     CFG.eventTitle=n.querySelector("#evtTitle").value||"Expo PyME";
     var p=n.querySelector("#pinIn").value.replace(/\D/g,"").slice(0,4); if(p.length===4)CFG.pin=p;
     CFG.autoExportEvery=Math.max(0,parseInt(n.querySelector("#autoExp").value,10)||0);
-    saveCfg(CFG);toast("Ajustes guardados");
+    saveCfg(CFG); pushConfig(authPin); toast("Ajustes guardados");
   };
   n.querySelector("#exportBtn").onclick=function(){
     if(SERVER_OK){ window.location.href="/export.xlsx"; }  // Excel del servidor (todos los celulares)
@@ -1247,7 +1293,13 @@ initPersistence();
 if(SYNC_ON){
   fetch("/api/health",{cache:"no-store"})
     .then(function(r){return r.ok?r.json():Promise.reject();})
-    .then(function(){ SERVER_OK=true; flushQueue(); setInterval(flushQueue,15000); window.addEventListener("online",flushQueue); })
+    .then(function(){
+      SERVER_OK=true;
+      fetchServerConfig();                                  // config central al cargar
+      setInterval(fetchServerConfig,15000);                 // y revisa cambios cada 15s
+      flushQueue(); setInterval(flushQueue,15000);
+      window.addEventListener("online",flushQueue);
+    })
     .catch(function(){ SERVER_OK=false; });   // sin backend: kiosco offline
 }
 screenWelcome();

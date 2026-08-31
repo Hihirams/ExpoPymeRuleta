@@ -93,7 +93,30 @@ class DB:
                    ip            TEXT
                )"""
         )
+        # Configuración central (ruleta/probabilidades). Una sola fila.
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS app_config(k TEXT PRIMARY KEY, v TEXT)"
+        )
         self.conn.commit()
+
+    def get_config(self):
+        with self.lock:
+            row = self.conn.execute(
+                "SELECT v FROM app_config WHERE k='config'").fetchone()
+        if not row:
+            return None
+        try:
+            return json.loads(row[0])
+        except Exception:
+            return None
+
+    def set_config(self, obj):
+        payload = json.dumps(obj, ensure_ascii=False)
+        with self.lock:
+            self.conn.execute(
+                "INSERT INTO app_config(k,v) VALUES('config',?) "
+                "ON CONFLICT(k) DO UPDATE SET v=excluded.v", (payload,))
+            self.conn.commit()
 
     def insert(self, entry, ip):
         """Inserta una respuesta. Idempotente por respondent_id (evita duplicados
@@ -475,6 +498,8 @@ def make_handler(db, port):
                 return self._json({"ok": True})
             if path == "/api/stats":
                 return self._json(db.stats())
+            if path == "/api/config":
+                return self._json({"config": db.get_config()})
             if path == "/api/entries":
                 return self._json(db.entries())
             if path == "/export.xlsx":
@@ -491,6 +516,8 @@ def make_handler(db, port):
             path = self.path.split("?", 1)[0]
             if path == "/api/respuesta":
                 return self._recibir()
+            if path == "/api/config":
+                return self._set_config()
             return self._json({"ok": False, "error": "ruta desconocida"}, 404)
 
         # ---- handlers concretos ----
@@ -509,6 +536,26 @@ def make_handler(db, port):
             except Exception as ex:
                 return self._json({"ok": False, "error": str(ex)}, 500)
             return self._json({"ok": True, "nuevo": nuevo, "total": db.stats()["total"]})
+
+        def _set_config(self):
+            """Guarda la configuración central (ruleta/probabilidades). Protegido
+            por PIN: el body debe traer el PIN vigente."""
+            try:
+                length = int(self.headers.get("Content-Length") or 0)
+                raw = self.rfile.read(length) if length else b"{}"
+                body = json.loads(raw.decode("utf-8"))
+            except Exception as ex:
+                return self._json({"ok": False, "error": "json invalido: %s" % ex}, 400)
+            cfg = body.get("config")
+            pin = str(body.get("pin") or "")
+            if not isinstance(cfg, dict):
+                return self._json({"ok": False, "error": "config invalida"}, 400)
+            actual = db.get_config()
+            esperado = str((actual or {}).get("pin") or "1234")
+            if pin != esperado:
+                return self._json({"ok": False, "error": "pin incorrecto"}, 403)
+            db.set_config(cfg)
+            return self._json({"ok": True})
 
         def _export(self):
             if not HAS_OPENPYXL:
