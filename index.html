@@ -330,10 +330,25 @@ input,select,textarea{font-family:inherit;font-size:16px}
 /* ----------------------------------------------------------------
    1) CONFIGURACIÓN EDITABLE  (opciones de la encuesta)
    ---------------------------------------------------------------- */
-var EMPRESAS = ["Bara","Bosch","Crest","CRIOTEC","Entergi","Heineken","Idealease",
-  "INCASA","Metalsa","Nemak","Parker Hannifin","PCM, SA DE CV","Teleperformance",
-  "The Heico Companies","Topo Chico","Unilever","Vertiv","Whirlpool","Siemens",
-  "Liebherr","Seil Rentals"];
+var EMPRESAS = ["Alen del Norte","Alliax","Amparts promare","Arca","Atlas Copco Group",
+  "Autlán","Autycom","Bara","Baxter","BEREL","Bokados","Bosch",
+  "British American Tobacco México","Celestica","CEMEX","Chiligrin","Cinepolis","Clarios",
+  "COFLEX","Coppel","Crest","CRIOTEC","Cuprum","Daltile","DEACERO","Elematec","Entergi",
+  "Fast Rite","FINSA","FRAS-LE MÉXICO","Frisa","Fultra","GE VERNOVA","Gonher","GPV",
+  "Green Paper","Grupo Lamosa","Güntner de México","HEB","Heineken","HERDEZ","Idealease",
+  "IDENTI SA DE CV","INCASA","Index Chihuahua","International","Iquisa","JB Pointdexter",
+  "JCB","Katcon","LALA","LEGO","Magnusson","Metalsa","Mondelez International","Multipak",
+  "Nemak","Newell","Office Max","Oxxo","Palacio de Hierro","PANEL REY","Parker Hannifin",
+  "PCM, SA DE CV","Polaris","Porcelanite","Proesa","Protexa Corporativo","Protexa Desarrollos",
+  "Protexa Imper","Qualtia Alimentos","Quimobasicos","Ragasa","Regio Corte","Safran",
+  "Schindler","Schneider Electric","Scojet","SF Industrial","Sierra Norte","Sigma","Slyrsa",
+  "SMS Group","Stanley Black and Decker","Tec de Mty","Teleperformance","Ternium",
+  "The Heico Companies","Topo Chico","Tostadas Charras","Tubacero","Unilever","USG","Vertiv",
+  "Viakable","Victaulic","Vitro","Voltrak","Whirlpool","Xpertal","Zedmex","Zinc Nacional",
+  "Cydsa","Bourns","Oxxo Gas","Siemens","Accudyn De México","Liebherr","Banregio","Gruma",
+  "XTS Logistics","Seil Rentals","Novem","Brunnen","Vertex","Namm","Magnekon","Foxconn"];
+/* Orden alfabético (español) para encontrar fácil entre tantas empresas */
+EMPRESAS.sort(function(a,b){return a.localeCompare(b,"es",{sensitivity:"base"});});
 
 var OPC_GUSTO_MAS = ["Sistema de citas","Lugar e instalaciones","Atención del personal",
   "Organización del evento","Ponentes y expositores","Networking / contactos"];
