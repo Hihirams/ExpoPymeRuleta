@@ -42,6 +42,7 @@ import io
 import json
 import mimetypes
 import os
+import re
 import socket
 import sqlite3
 import sys
@@ -55,6 +56,34 @@ INDEX_FILE = os.path.join(BASE_DIR, "index.html")
 
 # Extensiones estaticas permitidas (seguridad: no servir cualquier archivo)
 STATIC_DIRS = ("img",)
+
+# Rutas con que Android/iOS/Windows detectan "¿hay internet?" al conectarse a
+# una red. Si respondemos con una redireccion en vez de lo que esperan, el
+# sistema abre solo la pagina (captive portal). OJO: esto SOLO se dispara si
+# esta laptop es el punto de acceso o el DNS de la red; si la laptop es solo un
+# cliente de un hotspot de celular, el celular nunca manda estas peticiones
+# aqui. Ver README / nota de despliegue.
+CAPTIVE_PROBE_PATHS = (
+    "/generate_204", "/gen_204",           # Android
+    "/hotspot-detect.html",                # iOS / macOS
+    "/library/test/success.html",          # iOS (variante)
+    "/connecttest.txt", "/ncsi.txt",       # Windows (NCSI)
+    "/redirect",                           # Windows
+    "/canonical.html",                     # Firefox / GNOME
+    "/success.txt",                        # Firefox
+    "/kindle-wifi/wifistub.html",          # Kindle
+)
+
+
+def wifi_qr_payload(ssid, password, enc="WPA"):
+    """Texto estandar para un QR que conecta el telefono a una red WiFi.
+    Formato: WIFI:S:<ssid>;T:<WPA|nopass>;P:<clave>;;  Escapa \\ ; , : \" ."""
+    def esc(s):
+        return re.sub(r'([\\;,:"])', r"\\\1", s or "")
+    enc = (enc or "WPA").upper()
+    if enc in ("NOPASS", "NONE", ""):
+        return "WIFI:S:%s;T:nopass;;" % esc(ssid)
+    return "WIFI:S:%s;T:%s;P:%s;;" % (esc(ssid), enc, esc(password))
 
 # ---- Dependencias opcionales -------------------------------------------------
 try:
@@ -384,13 +413,29 @@ def qr_ascii(url):
 # =============================================================================
 # PANEL (dashboard servido en la laptop)
 # =============================================================================
-def panel_html(port):
+def panel_html(port, wifi=None):
     url = primary_url(port)
-    qr_tag = ('<img src="/qr.png" alt="QR" style="width:280px;height:280px;image-rendering:pixelated;'
-              'border:10px solid #fff;border-radius:12px;background:#fff">'
-              if HAS_QRCODE else
-              '<p style="color:#e11b22">Instala <code>qrcode</code> para ver el QR aquí '
-              '(pip install qrcode). La URL de abajo funciona igual.</p>')
+    img_style = ('width:260px;height:260px;image-rendering:pixelated;'
+                 'border:10px solid #fff;border-radius:12px;background:#fff')
+    if not HAS_QRCODE:
+        qr_tag = ('<p style="color:#e11b22">Instala <code>qrcode</code> para ver el QR aquí '
+                  '(pip install qrcode). La URL de abajo funciona igual.</p>')
+    elif wifi:
+        # Dos QR: (1) unirse al WiFi, (2) abrir la encuesta.
+        qr_tag = (
+            '<div style="display:flex;flex-wrap:wrap;gap:24px;justify-content:center">'
+            '  <div style="max-width:280px">'
+            '    <div style="font-weight:600;margin-bottom:8px">1. Conéctate al WiFi</div>'
+            '    <img src="/wifi-qr.png" alt="QR WiFi" style="%s">'
+            '    <div class="muted" style="margin-top:6px">Red: <b>%s</b></div>'
+            '  </div>'
+            '  <div style="max-width:280px">'
+            '    <div style="font-weight:600;margin-bottom:8px">2. Abre la encuesta</div>'
+            '    <img src="/qr.png" alt="QR encuesta" style="%s">'
+            '  </div>'
+            '</div>' % (img_style, wifi.get("ssid", ""), img_style))
+    else:
+        qr_tag = '<img src="/qr.png" alt="QR" style="%s">' % img_style
     return """<!doctype html><html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Panel · Expo PyME</title>
@@ -456,7 +501,13 @@ tick(); setInterval(tick,4000);
 # =============================================================================
 # SERVIDOR HTTP
 # =============================================================================
-def make_handler(db, port):
+def make_handler(db, port, wifi=None):
+    # Hosts "propios": si el Host de la peticion no es uno de estos, asumimos
+    # que es una sonda de captive portal (el SO preguntando por otro dominio) y
+    # redirigimos a la encuesta. Se calcula una vez al arrancar.
+    known_hosts = {"localhost", "127.0.0.1", "0.0.0.0"}
+    known_hosts.update(lan_ips())
+
     class Handler(BaseHTTPRequestHandler):
         server_version = "ExpoPyME/1.0"
         protocol_version = "HTTP/1.1"
@@ -479,18 +530,46 @@ def make_handler(db, port):
             self._send(code, json.dumps(obj, ensure_ascii=False),
                        "application/json; charset=utf-8")
 
+        def _redirect(self, url, code=302):
+            self.send_response(code)
+            self.send_header("Location", url)
+            self.send_header("Content-Length", "0")
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+
+        def _is_captive_probe(self, path):
+            """True si el SO esta preguntando '¿hay internet?' (para abrirle la
+            encuesta como captive portal). Reconoce las rutas conocidas y
+            tambien cualquier peticion a un Host que no es este servidor."""
+            if path in CAPTIVE_PROBE_PATHS:
+                return True
+            host = (self.headers.get("Host") or "").split(":")[0].strip().lower()
+            return bool(host) and host not in known_hosts
+
         def log_message(self, fmt, *args):
             pass  # silencio (evita saturar la terminal en el evento)
 
         # ---- GET ----
         def do_GET(self):
             path = unquote(self.path.split("?", 1)[0])
+            # Captive portal: si el SO sondea por internet, lo mandamos a la
+            # encuesta. (Solo aplica si esta laptop es el AP/DNS de la red.)
+            if path != "/" and self._is_captive_probe(path):
+                return self._redirect(primary_url(port) + "/")
             if path in ("/", "/index.html"):
                 return self._serve_file(INDEX_FILE, "text/html; charset=utf-8")
             if path == "/panel":
-                return self._send(200, panel_html(port))
+                return self._send(200, panel_html(port, wifi))
             if path == "/qr.png":
                 png = qr_png_bytes(primary_url(port))
+                if png is None:
+                    return self._send(404, "qrcode no instalado")
+                return self._send(200, png, "image/png")
+            if path == "/wifi-qr.png":
+                if not wifi:
+                    return self._send(404, "wifi no configurado")
+                png = qr_png_bytes(wifi_qr_payload(
+                    wifi.get("ssid", ""), wifi.get("pass", ""), wifi.get("enc", "WPA")))
                 if png is None:
                     return self._send(404, "qrcode no instalado")
                 return self._send(200, png, "image/png")
@@ -600,9 +679,9 @@ def make_handler(db, port):
     return Handler
 
 
-def make_server(port, db_path):
+def make_server(port, db_path, wifi=None):
     db = DB(db_path)
-    httpd = ThreadingHTTPServer(("0.0.0.0", port), make_handler(db, port))
+    httpd = ThreadingHTTPServer(("0.0.0.0", port), make_handler(db, port, wifi))
     httpd.daemon_threads = True
     return httpd, db
 
@@ -612,7 +691,18 @@ def main():
     ap.add_argument("--port", type=int, default=8080, help="Puerto (default 8080)")
     ap.add_argument("--db", default=os.path.join(BASE_DIR, "respuestas.db"),
                     help="Archivo de base de datos SQLite")
+    ap.add_argument("--ssid", default="",
+                    help="Nombre (SSID) de la red WiFi. Si lo das, el panel muestra "
+                         "un 2do QR para que los celulares se unan a la red al escanearlo.")
+    ap.add_argument("--wifi-pass", dest="wifi_pass", default="",
+                    help="Clave de la red WiFi (para el QR de WiFi).")
+    ap.add_argument("--wifi-enc", dest="wifi_enc", default="WPA",
+                    help="Cifrado del WiFi: WPA (default) o nopass si es red abierta.")
     args = ap.parse_args()
+
+    wifi = None
+    if args.ssid:
+        wifi = {"ssid": args.ssid, "pass": args.wifi_pass, "enc": args.wifi_enc}
 
     # La consola de Windows suele ser cp1252 y no puede dibujar el QR de bloques
     # ni acentos. Forzamos UTF-8 en la salida (no afecta la red ni los datos).
@@ -622,7 +712,7 @@ def main():
         except Exception:
             pass
 
-    httpd, _ = make_server(args.port, args.db)
+    httpd, _ = make_server(args.port, args.db, wifi)
     url = primary_url(args.port)
 
     line = "=" * 60
@@ -649,6 +739,11 @@ def main():
         print("  Si el QR no abre, prueba otra IP de esta laptop:")
         for ip in ips:
             print("       http://%s:%d" % (ip, args.port))
+        print()
+    if wifi:
+        print("  QR de WiFi ACTIVO en el panel (red '%s'):" % wifi["ssid"])
+        print("     1) escanean el QR de WiFi  -> se unen a la red")
+        print("     2) escanean el QR de abajo -> abre la encuesta")
         print()
     print("  PANEL de control (en esta laptop): %s/panel" % url)
     print("  Exportar Excel:                    %s/export.xlsx" % url)
