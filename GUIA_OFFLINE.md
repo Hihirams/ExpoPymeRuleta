@@ -8,22 +8,23 @@ ningún lado** (ni la laptop ni los celulares necesitan datos).
 ## ¿Cómo funciona? (la idea en 30 segundos)
 
 Internet y "red WiFi" son cosas distintas. Para que los celulares hablen con la
-laptop solo hace falta que estén en **la misma red local**. Esa red la crea la
-propia laptop (su *Mobile Hotspot*), aislada del mundo.
+laptop solo hace falta que estén en **la misma red local**. Esa red la crea un
+**celular en modo hotspot** (o un router), aislada del mundo; la **laptop se
+conecta a esa red** y corre el servidor.
 
 ```
-   Sin señal celular, sin cable, sin nada externo
-   ┌────────────────────────────────────────────────┐
-   │   Burbuja local (la crea tu laptop)             │
-   │                                                 │
-   │   [Laptop]  ←── WiFi local ──→  [Celulares]     │
-   │   192.168.137.1                 escanean el QR  │
-   │   sirve la encuesta             llenan y envían │
-   │   guarda TODO en respuestas.db                  │
-   └────────────────────────────────────────────────┘
+   Sin señal celular real, sin cable, sin nada externo
+   ┌─────────────────────────────────────────────────────────┐
+   │   Burbuja local (la crea un CELULAR en hotspot o router) │
+   │                                                          │
+   │   [Celular hotspot]  ← WiFi →  [Laptop]  ← WiFi → [Cels] │
+   │    crea la red                  servidor         escanean│
+   │                                 respuestas.db    y envían│
+   └─────────────────────────────────────────────────────────┘
 ```
 
-- El **QR** apunta a la IP local de la laptop, p. ej. `http://192.168.137.1:8080`.
+- El **QR** apunta a la IP que tomó la laptop en esa red (el servidor la detecta
+  y la pone sola en el panel).
 - Cada respuesta viaja del celular a la laptop y se guarda en `respuestas.db`.
 - Si el WiFi falla un momento, el celular **guarda la respuesta y la reintenta
   solo** (no se pierde nada).
@@ -54,37 +55,31 @@ Debe decir `OK` al final.
 
 ## 2) Crear la red WiFi local (sin internet)
 
-Windows **no deja encender** el *Mobile Hotspot* si la laptop no tiene ninguna
-conexión ("We can't set up mobile hotspot because your PC doesn't have an
-Ethernet, Wi-Fi, or cellular data connection"). Para solucionarlo hay un
-adaptador **loopback** que le da a Windows una "conexión" para compartir.
+⚠️ **La laptop NO crea el hotspot.** En este equipo, el *Mobile Hotspot* de
+Windows no enciende sin internet. Así que la red WiFi la crea **otro aparato**
+(un celular o un router) y **la laptop se conecta a esa red como un cliente
+más**. Ese es el orden correcto.
 
-### 2.1 Preparar el adaptador (ya hecho, una sola vez)
+### Opción recomendada: un celular como hotspot (gratis, sin datos)
 
-Doble clic en **`CONFIGURAR_HOTSPOT.bat`** → di **"Sí"** al aviso de permisos.
-Instala y configura solo el adaptador **HotspotLoopback**. (Ya quedó instalado.)
+1. En un celular **Android**: activa **modo avión**, luego enciende **WiFi** y
+   el **Punto de acceso / Hotspot**. No necesita SIM ni datos. (En iPhone
+   funciona si tiene SIM.) → **ese celular crea la red.**
+2. Conecta **la laptop** a ese hotspot. *(La laptop es cliente; NO enciende
+   ningún hotspot propio.)*
+3. Conecta los **celulares de los participantes** al **mismo** hotspot.
+4. Anota el **Nombre de red (SSID)** y la **Contraseña** del hotspot: los usarás
+   para el 2º QR (ver sección 4).
 
-### 2.2 Encender el Mobile Hotspot
+### Alternativa para mucha gente: un router WiFi
 
-1. Abre **Configuración → Red e Internet → Mobile hotspot**.
-2. **"Compartir mi conexión de Internet desde"** → elige **HotspotLoopback**.
-3. **"Compartir a través de"** → **Wi-Fi**.
-4. **Enciende** el interruptor (Off → On).
-5. Anota el **Nombre de red** y la **Contraseña** (los celulares la usarán).
+Cualquier router (o *travel router*) crea la red sin internet y aguanta 32–64+
+dispositivos. La laptop se conecta al router igual que arriba. Es lo más estable
+si esperas mucha gente.
 
-> Con el *Mobile Hotspot* de Windows, la laptop **siempre** tiene la IP
-> `192.168.137.1`. Eso hace que la URL y el QR sean **estables**: puedes
-> imprimir el QR una vez y reutilizarlo en cada evento.
-
-> ⚠️ **Si el interruptor sigue sin encender** (algunas versiones muy nuevas de
-> Windows 11 exigen un perfil "con internet" real): no pierdas tiempo, usa un
-> **celular Android como hotspot** (modo avión + WiFi + hotspot, sin datos) o un
-> **router WiFi**. La laptop se conecta a esa red, corres el servidor y el panel
-> te da el QR con la IP correcta automáticamente. Todo lo demás es idéntico.
-
-> **Para quitar el adaptador** después: Administrador de dispositivos →
-> Adaptadores de red → clic derecho en *Microsoft KM-TEST Loopback Adapter* →
-> **Desinstalar dispositivo**.
+> La laptop tomará una IP como `192.168.x.x` (o `172.20.10.x` si el hotspot es
+> de iPhone). **El servidor la detecta solo** y el panel arma el QR con esa IP;
+> no tienes que configurar nada.
 
 ---
 
@@ -102,30 +97,46 @@ O desde la terminal:
 python servidor.py --port 8080
 ```
 
+**Para mostrar también un QR que conecte al WiFi** (recomendado), arranca con el
+nombre y clave de la red (la del celular/router de la sección 2):
+
+```bash
+python servidor.py --ssid "NombreDeLaRed" --wifi-pass "laClave"
+```
+
+Así el panel muestra **2 QR**: uno para unirse al WiFi y otro para abrir la
+encuesta.
+
 Deja esa ventana **abierta** durante todo el evento y la laptop **enchufada**.
 
 ---
 
-## 4) El QR para que la gente escanee
+## 4) Los QR para que la gente escanee
 
-Tienes tres formas de obtener el QR (todas offline):
+Hay **dos** QR (ambos en el panel, todo offline):
 
-1. **Panel** (`http://localhost:8080/panel`): muestra el QR grande y en vivo.
-   Proyéctalo o ponlo en una pantalla.
-2. **Imagen** `http://localhost:8080/qr.png`: ábrela, guárdala e **imprímela**
-   para pegarla en el stand.
-3. **Terminal**: el QR también se dibuja en la ventana negra al iniciar.
+1. **QR de WiFi** (si arrancaste con `--ssid`): lo escanean y su celular **se une
+   a la red** sin teclear la clave.
+2. **QR de la encuesta**: lo escanean y **abre la encuesta**.
 
-> **Recomendado:** imprime el QR en papel y pégalo. Como la IP del hotspot
-> siempre es `192.168.137.1`, el mismo papel sirve para todos los eventos.
+Dónde verlos:
+- **Panel** (`http://localhost:8080/panel`): muestra los QR grandes y el conteo
+  en vivo. Proyéctalo o ponlo en una pantalla.
+- **Imagen** `http://localhost:8080/qr.png` (encuesta) y `/wifi-qr.png` (WiFi):
+  ábrelas e **imprímelas** para pegarlas en el stand.
+
+> **Nota:** la IP de la laptop (y por tanto el QR de la encuesta) **cambia** según
+> la red a la que te conectes. Por eso lo mejor es **mostrar el panel en vivo** en
+> una pantalla; si prefieres imprimir, regenera el QR cuando cambie la red.
 
 ---
 
 ## 5) Qué hacen las personas
 
-1. Encienden **WiFi** en su celular y se conectan a la red de tu laptop
-   (la del hotspot). **No necesitan datos ni plan.**
-2. Escanean el QR (o escriben la URL en el navegador).
+1. Encienden **WiFi** y se conectan al **mismo hotspot** (el del celular/router
+   de la sección 2) — escaneando el **QR de WiFi** o eligiéndolo a mano.
+   **No necesitan datos ni plan.**
+2. Escanean el **QR de la encuesta** (o escriben la URL en el navegador).
 3. Llenan la encuesta, giran la ruleta y presionan **Guardar y terminar**.
 4. Listo: la respuesta ya está en tu laptop.
 
@@ -186,10 +197,10 @@ protegido con tu **PIN**: solo quien lo sepa puede cambiarlo.
 |---|---|
 | El celular no abre la página | Verifica que esté conectado a la **WiFi del hotspot** (no a otra red). Prueba escribir la URL a mano. |
 | Sale "Red sin internet" | Es normal (no hay internet). Elegir **"Mantener conexión"**. |
-| El QR no funciona | Usa otra IP: el servidor lista todas las IP de la laptop al iniciar. En el evento debe ser `192.168.137.1`. |
+| El QR no funciona | El servidor lista **todas las IP** de la laptop al iniciar; usa la que empiece por la red del hotspot (`192.168.x.x` o `172.20.10.x`). El panel arma el QR con la correcta. |
 | "openpyxl no instalado" | Corre `pip install -r requirements.txt` (con internet, una vez). |
 | No se ve el QR en la terminal | No pasa nada: usa el panel `/panel` o `/qr.png`. |
-| Muchos celulares a la vez se traban | El *Mobile Hotspot* de Windows aguanta ~8 equipos. Para 20–50 celulares, usa un **router de viaje** barato conectado a la laptop por cable, y en el QR pon la IP que ese router le dé a la laptop. |
+| Muchos celulares a la vez se traban | El hotspot de un celular aguanta ~8–15 equipos. Para 20–50 celulares, usa un **router WiFi** (aguanta 32–64+). La laptop se conecta a él igual. |
 
 ---
 
