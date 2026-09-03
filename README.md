@@ -13,10 +13,10 @@ cd ExpoPymeRuleta
 pip install -r requirements.txt        # una sola vez, con internet
 ```
 
-Necesitas **Python 3.8+**. `http.server` y `sqlite3` ya vienen con Python; solo
+Requisito: **Python 3.8+**. `http.server` y `sqlite3` ya vienen con Python; solo
 se instalan `openpyxl` (Excel) y `qrcode` (QR).
 
-## Correrlo
+## Ejecución
 
 - **Windows:** doble clic en `INICIAR_SERVIDOR.bat`.
 - **Cualquier SO / terminal:**
@@ -28,8 +28,8 @@ se instalan `openpyxl` (Excel) y `qrcode` (QR).
   python servidor.py --ssid "NombreDeLaRed" --wifi-pass "laClave"
   ```
 
-Luego abre el **panel** en la laptop: `http://localhost:8080/panel` (QR, conteo
-en vivo y botón para exportar el Excel).
+El **panel** se abre en la laptop: `http://localhost:8080/panel` (QR, conteo en
+vivo y botón para exportar el Excel).
 
 ## La red WiFi (sin internet)
 
@@ -45,11 +45,11 @@ detecta la IP solo y arma el QR en el panel.
 - `servidor.py` sirve `index.html`, recibe cada respuesta por `POST /api/respuesta`
   y la guarda en `respuestas.db` (SQLite). Exporta en `GET /export.xlsx`.
 - La ruleta y sus probabilidades se controlan **en vivo** desde el admin de la
-  laptop (engrane → PIN) y se aplican a **todos** los celulares (config central
-  en el servidor). PIN por defecto: `1234` (cámbialo).
+  laptop (engrane → PIN) y se aplican a **todos** los celulares (configuración
+  central en el servidor). PIN por defecto: `1234` (conviene cambiarlo).
 - Offline-first: si el WiFi falla, el celular reintenta el envío solo.
-- Sin servidor (p. ej. abriendo el HTML suelto) funciona como kiosco: guarda en
-  el propio dispositivo.
+- Sin servidor (por ejemplo, abriendo el HTML suelto) funciona como kiosco:
+  guarda en el propio dispositivo.
 
 ## Pruebas
 
@@ -60,4 +60,5 @@ python test_servidor.py
 ## Datos
 
 `respuestas.db` (la base con las respuestas) **no** se sube al repo; se crea sola
-al correr el servidor. Respáldala copiándola a una USB durante el evento.
+al correr el servidor. Conviene respaldarla copiándola a una USB durante el
+evento.
