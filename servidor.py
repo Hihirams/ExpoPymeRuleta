@@ -472,8 +472,8 @@ def qr_ascii(url):
 # =============================================================================
 def panel_html(port, wifi=None):
     url = primary_url(port)
-    img_style = ('width:260px;height:260px;image-rendering:pixelated;'
-                 'border:10px solid #fff;border-radius:12px;background:#fff')
+    img_style = ('width:min(260px,70vw);height:min(260px,70vw);image-rendering:pixelated;'
+                 'border:10px solid #fff;border-radius:12px;background:#fff;max-width:100%')
     if not HAS_QRCODE:
         qr_tag = ('<p style="color:#e11b22">Instala <code>qrcode</code> para ver el QR aquí '
                   '(pip install qrcode). La URL de abajo funciona igual.</p>')
@@ -500,24 +500,39 @@ def panel_html(port, wifi=None):
   :root{--brand:#8c1d40;--brand-2:#e11b22}
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-       background:#f3eff0;color:#1b1e23;line-height:1.5}
+       background:#f3eff0;color:#1b1e23;line-height:1.5;-webkit-text-size-adjust:100%}
   .wrap{max-width:920px;margin:0 auto;padding:28px 18px 80px}
-  h1{font-weight:300;letter-spacing:-.02em;margin:0 0 4px}
+  h1{font-weight:300;letter-spacing:-.02em;margin:0 0 4px;font-size:clamp(22px,4.5vw,30px)}
   .muted{color:#868d95;margin:0 0 24px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-  .card{background:#fff;border:1px solid #e6e9ed;border-radius:18px;padding:22px;
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+  .card{background:#fff;border:1px solid #e6e9ed;border-radius:18px;padding:22px;min-width:0;
         box-shadow:0 10px 30px rgba(27,30,35,.05)}
   .stat{text-align:center}
-  .stat b{display:block;font-size:52px;font-weight:300;line-height:1}
-  .stat span{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#9aa1a9}
+  .stat b{display:block;font-size:clamp(30px,7vw,52px);font-weight:300;line-height:1;word-break:break-word}
+  .stat span{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#9aa1a9;display:block}
   .qr{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
-  .url{font-size:22px;font-weight:600;color:var(--brand);word-break:break-all}
+  .url{font-size:clamp(14px,3vw,22px);font-weight:600;color:var(--brand);word-break:break-all;overflow-wrap:anywhere}
   .btn{display:inline-block;border:none;border-radius:999px;padding:14px 26px;font-weight:600;
-       font-size:15px;cursor:pointer;text-decoration:none}
+       font-size:15px;cursor:pointer;text-decoration:none;text-align:center}
   .btn-dark{background:var(--brand);color:#fff}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-  code{background:#f0ebed;padding:2px 6px;border-radius:6px}
-  @media(max-width:640px){.grid{grid-template-columns:1fr}.stat b{font-size:40px}}
+  code{background:#f0ebed;padding:2px 6px;border-radius:6px;word-break:break-all;overflow-wrap:anywhere}
+  /* Tablets: las 3 estadisticas en 2 columnas (la 3a abajo completa) */
+  @media(max-width:760px){
+    .grid{grid-template-columns:1fr 1fr}
+    .card{padding:18px}
+    .btn{flex:1 1 100%}
+  }
+  /* Celulares: apilado de 1 columna y tipografia mas chica */
+  @media(max-width:480px){
+    .wrap{padding:20px 12px 60px}
+    .grid{grid-template-columns:1fr;gap:10px}
+    .card{padding:16px;border-radius:14px}
+    .stat b{font-size:34px}
+    .url{font-size:16px}
+    .btn{padding:13px 18px;font-size:14px}
+    .qr img{width:min(240px,72vw)!important;height:auto!important}
+  }
 </style></head><body>
 <div class="wrap">
   <h1>Panel de control · Expo PyME</h1>
