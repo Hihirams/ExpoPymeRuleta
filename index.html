@@ -58,7 +58,7 @@ input,select,textarea{font-family:inherit;font-size:16px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:560px){.grid2{grid-template-columns:1fr}}
 
-/* Escala de botones 0-10 / 1-10 */
+/* Escala de botones 1-10 (sin 0) */
 .scale{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 4px}
 .scale button{
   min-width:46px;height:46px;padding:0 6px;border:1px solid #e2e6ea;background:#f7f8fa;border-radius:12px;
@@ -393,7 +393,7 @@ var LS_CFG="expopyme_cfg_v3", LS_HIST="expopyme_hist_v1", LS_DRAFT="expopyme_dra
 var WHEEL_COLORS=["#8c1d40","#e11b22","#111111","#c21e56","#6e1732","#e11b22","#111111","#a3234c","#7a1230","#d61a29","#4a0d1f","#b0182a"];
 
 function loadCfg(){
-  var d={pin:"1234", eventTitle:"Expo PyME", autoExportEvery:10, prizes:DEFAULT_PRIZES.map(function(p){return Object.assign({},p);})};
+  var d={pin:"1234", eventTitle:"Expo PyME", autoExportEvery:10, prizesPerHour:2, prizes:DEFAULT_PRIZES.map(function(p){return Object.assign({},p);})};
   try{var s=JSON.parse(localStorage.getItem(LS_CFG));if(s&&s.prizes){return Object.assign(d,s);}}catch(e){}
   return d;
 }
@@ -525,6 +525,7 @@ function adoptConfig(c){
   if(c.eventTitle) CFG.eventTitle=c.eventTitle;
   if(c.pin) CFG.pin=c.pin;
   if(c.autoExportEvery!=null) CFG.autoExportEvery=c.autoExportEvery;
+  if(c.prizesPerHour!=null) CFG.prizesPerHour=parseInt(c.prizesPerHour,10)||0;
   saveCfg(CFG);                          // persiste local (no re-publica)
   return true;
 }
@@ -545,7 +546,8 @@ function pushConfig(authPin){
   if(!SERVER_OK) return;
   var body={ pin:(authPin!=null?authPin:CFG.pin),
              config:{ prizes:CFG.prizes, eventTitle:CFG.eventTitle,
-                      autoExportEvery:CFG.autoExportEvery, pin:CFG.pin } };
+                      autoExportEvery:CFG.autoExportEvery, prizesPerHour:CFG.prizesPerHour,
+                      pin:CFG.pin } };
   _lastCfgJson=JSON.stringify(body.config);   // evita re-adoptar lo que acabo de enviar
   fetch(CONFIG_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
     .then(function(r){ if(!r.ok){ toast("No se pudo sincronizar (¿PIN?)"); } })
@@ -559,10 +561,12 @@ var root=document.getElementById("root");
 var A={};            // respuestas de la encuesta en curso
 var stepIndex=0;     // paso actual de la encuesta
 var wonPrize=null;   // premio ganado en la ruleta
+var currentRid=null; // respondentId de la respuesta YA guardada (se le añade el premio al terminar la ruleta)
+var responseSaved=false; // true si la encuesta ya se guardó al finalizar
 
 function resetSurvey(){
   A={ beneficios:{}, emp:[{},{},{}] };
-  stepIndex=0; wonPrize=null;
+  stepIndex=0; wonPrize=null; currentRid=null; responseSaved=false;
   clearDraft();
 }
 
@@ -661,7 +665,12 @@ function renderSurvey(){
   var back=n.querySelector("#backBtn"); if(back) back.onclick=function(){stepIndex--;renderSurvey();};
   n.querySelector("#nextBtn").onclick=function(){
     if(!validateStep(id)) return;
-    if(lastReal){ renderRoulette(); return; }
+    if(lastReal){
+      // La respuesta se guarda AHORA, al pulsar "Finalizar y girar ruleta"
+      // (no hasta que gire la ruleta). El premio se añade después.
+      saveSurveyAndSpin();
+      return;
+    }
     stepIndex++; renderSurvey();
   };
 }
@@ -687,9 +696,9 @@ function viewRecomienda(){
   var aspects=[["atencion","Atención del personal"],["organizacion","Organización"],["lugar","Lugar del evento"],["registro","Registro del evento"]];
   var rr="";
   aspects.forEach(function(a){rr+='<div class="rating-row"><div class="rlabel">'+a[1]+'</div>'+scale(a[0],1,10,"1 · muy malo","10 · excelente")+'</div>';});
-  return '<p class="step-tag">Paso 2</p><h3 class="q">En una escala del 0 al 10, ¿qué probabilidad hay de que recomiende este evento?</h3>'+
-    '<p class="hint">0 = nada probable · 10 = muy probable</p>'+
-    scale("nps",0,10,"Nada probable","Muy probable")+
+  return '<p class="step-tag">Paso 2</p><h3 class="q">En una escala del 1 al 10, ¿qué probabilidad hay de que recomiende este evento?</h3>'+
+    '<p class="hint">1 = nada probable · 10 = muy probable</p>'+
+    scale("nps",1,10,"Nada probable","Muy probable")+
     '<h3 class="q sm">Evalúa los siguientes aspectos <span style="font-weight:500;color:#6b7280">(1 muy malo · 10 excelente)</span></h3>'+
     rr;
 }
@@ -888,10 +897,59 @@ function renderRoulette(){
     var dur=4000+Math.random()*2000;
     animateSpin(group,from,to,dur,function(){
       isSpinning=false;
-      wonPrize=winner;
-      showSpinResult(res,winner); // onSpinComplete: animación terminó al 100%
+      // onSpinComplete: animación terminó al 100%. Si cayó un premio real,
+      // se valida el cupo de la hora (X premios por hora, hora del sistema).
+      resolveWinner(winner,res);
     });
   };
+}
+
+/* ---- Cupo de premios por hora (límite configurable, por defecto 2/hora) ----
+   En modo servidor lo valida la laptop (contador central). En modo kiosco
+   (sin servidor) se valida localmente con la hora del sistema del navegador. */
+var LS_PRZ="expopyme_prizes_v1";
+function localPrizeEvents(){try{return JSON.parse(localStorage.getItem(LS_PRZ))||[];}catch(e){return [];}}
+function hourKey(d){
+  var p=function(x){return (x<10?"0":"")+x;};
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours());
+}
+function localClaimPrize(winner,limit){
+  if(limit<=0) return true;
+  var ev=localPrizeEvents(), hk=hourKey(new Date());
+  var used=ev.filter(function(e){return e.hk===hk;}).length;
+  if(used>=limit) return false;
+  ev.push({hk:hk,rid:currentRid,ts:new Date().toISOString()});
+  try{localStorage.setItem(LS_PRZ,JSON.stringify(ev));}catch(e){}
+  return true;
+}
+function claimPrizeSlot(winner,cb){
+  var limit=(CFG.prizesPerHour==null||CFG.prizesPerHour==="")?2:Math.max(0,parseInt(CFG.prizesPerHour,10)||0);
+  if(SERVER_OK){
+    // La laptop valida el cupo con SU hora y guarda el premio en la respuesta.
+    fetch("/api/prize",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({rid:currentRid,premio:winner.name})})
+      .then(function(r){return r.ok?r.json():Promise.reject();})
+      .then(function(d){cb(d&&d.claimed===true);})
+      .catch(function(){ cb(localClaimPrize(winner,limit)); }); // redir si falla la red
+  }else{
+    cb(localClaimPrize(winner,limit)); // kiosco offline: hora del sistema local
+  }
+}
+function randomConsolation(){
+  var cons=CFG.prizes.filter(function(p){return !p.isPrize;});
+  if(cons.length) return cons[Math.floor(Math.random()*cons.length)];
+  return {name:"Casi lo logras",label:"CASI",isPrize:false};
+}
+function resolveWinner(winner,res){
+  if(!winner.isPrize){ showSpinResult(res,winner); return; }
+  claimPrizeSlot(winner,function(ok){
+    if(ok){ showSpinResult(res,winner); }
+    else{
+      // La hora ya agotó su cupo de premios → resultado de consolación.
+      var c=randomConsolation();
+      showSpinResult(res,{name:(c.name||"Casi lo logras"),label:c.label,isPrize:false,quotaFull:true});
+    }
+  });
 }
 
 function quarticEaseOut(t){return 1-Math.pow(1-t,4);}
@@ -943,54 +1001,86 @@ function wheelSVG(segs){
 function showSpinResult(res,winner){
   if(winner.isPrize){
     res.innerHTML='<div class="result"><div class="lbl">¡Ganaste!</div><div class="prize">'+esc(winner.name)+'</div></div>'+
-      '<button class="bbtn alt" id="claimBtn">GUARDAR Y TERMINAR</button>';
+      '<button class="bbtn alt" id="claimBtn">Terminar</button>';
   }else{
-    res.innerHTML='<div class="result nolose"><div class="lbl">Resultado</div><div class="prize">'+esc(winner.name)+'</div></div>'+
-      '<button class="bbtn alt" id="claimBtn">GUARDAR Y TERMINAR</button>';
+    var princi = winner.quotaFull
+      ? '<div class="lbl">¡Casi!</div>'
+      : '<div class="lbl">Resultado</div>';
+    res.innerHTML='<div class="result nolose">'+princi+'<div class="prize">'+esc(winner.name)+'</div></div>'+
+      (winner.quotaFull?'<p style="color:#111;font-weight:700;margin:8px 0 0">El cupo de premios de esta hora (<b>'+esc(CFG.prizesPerHour)+'/hora</b>) ya se entregó. ¡Gracias por participar!</p>':'')+
+      '<button class="bbtn alt" id="claimBtn">Terminar</button>';
   }
-  res.querySelector("#claimBtn").onclick=function(){ commitResponse(winner); };
+  res.querySelector("#claimBtn").onclick=function(){ finalizePrize(winner); };
 }
 
 /* ================================================================
    8) GUARDAR RESPUESTA EN EL HISTÓRICO
+   La encuesta se guarda al pulsar "Finalizar y girar ruleta"
+   (aún sin premio). El premio, si se gana, se agrega a esa misma
+   respuesta al pulsar "Terminar" cuando la ruleta termina.
    ================================================================ */
-function commitResponse(winner){
+function saveSurveyAndSpin(){
   var now=new Date();
   var entry=Object.assign({}, A);
   entry.emp=A.emp;
-  entry.premio = winner.isPrize ? winner.name : "";     // custom_1
-  entry.premioLanded = winner.name;                     // referencia interna
+  entry.premio="";                                    // aun sin premio
+  entry.premioLanded="";
   entry.respondentId = String(Date.now())+String(Math.floor(Math.random()*900+100));
   entry.dateCreated = now.toISOString();
   entry.dateModified = now.toISOString();
-  // descontar stock del premio real
-  if(winner.isPrize && winner.stock!==null && winner.stock>0){
-    var idx=CFG.prizes.indexOf(winner);
-    if(idx>=0){CFG.prizes[idx].stock=Math.max(0,CFG.prizes[idx].stock-1);saveCfg(CFG);}
-  }
+  currentRid=entry.respondentId;
+  responseSaved=true;
   var h=loadHist(); h.push(entry); saveHist(h);
   syncEntry(entry);            // enviar al servidor (si está en red local)
   clearDraft();
   // Autoexportar respaldo cada N respuestas (configurable en Ajustes)
   var every=parseInt(CFG.autoExportEvery,10)||0;
   if(every>0 && h.length % every===0){ try{ exportExcel(); toast("Respaldo automático exportado ("+h.length+" respuestas)"); }catch(e){} }
+  renderRoulette();
+}
+
+function finalizePrize(winner){
+  wonPrize=winner;
+  if(winner && winner.isPrize){
+    // descontar stock del premio real
+    if(winner.stock!==null && winner.stock>0){
+      var idx=CFG.prizes.indexOf(winner);
+      if(idx>=0){CFG.prizes[idx].stock=Math.max(0,CFG.prizes[idx].stock-1);saveCfg(CFG);}
+    }
+    // marcar el premio en la respuesta YA guardada (local). En modo servidor,
+    // /api/prize ya lo dejó marcado en la laptop.
+    var h=loadHist();
+    for(var i=0;i<h.length;i++){
+      if(h[i].respondentId===currentRid){
+        h[i].premio=winner.name;
+        h[i].premioLanded=winner.name;
+        h[i].dateModified=new Date().toISOString();
+        saveHist(h);
+        break;
+      }
+    }
+  }
   screenThanks();
 }
 
 function screenThanks(){
-  document.body.style.background="#eceef1";
+  var prizeHtml = (wonPrize&&wonPrize.isPrize)
+    ? '<div class="result" style="margin:14px 0 0"><div class="lbl">Premio registrado</div><div class="prize">'+esc(wonPrize.name)+'</div></div>'
+    : '';
   var n=el(
-    '<div class="min">'+
-      '<div class="hero" style="padding-top:70px">'+
-        '<div class="check-ic">✓</div>'+
-        '<h2>¡Listo!</h2>'+
-        '<p>Tu respuesta quedó registrada'+(wonPrize&&wonPrize.isPrize?' y tu premio: <b>'+esc(wonPrize.name)+'</b>':'')+'. ¡Gracias por tu participación!</p>'+
-        '<button class="btn btn-primary" id="againBtn" style="max-width:300px;margin:0 auto">Nueva encuesta</button>'+
+    '<div class="brutal"><div class="bwrap"><div style="max-width:560px;margin:0 auto">'+
+      '<h2 style="text-align:center">¡Gracias<br>por participar!</h2>'+
+      '<div class="panel" style="margin-bottom:20px">'+
+        '<p style="font-weight:700;margin:0 0 6px;text-transform:uppercase;letter-spacing:1px">'+esc(CFG.eventTitle)+'</p>'+
+        '<p style="margin:0">Tu respuesta quedó registrada.</p>'+
+        prizeHtml+
       '</div>'+
-    '</div>');
-  show(n,true);
+      '<button class="bbtn" id="againBtn">Nueva encuesta</button>'+
+      '<a class="back" id="exitBtn" style="display:block;text-align:center;margin-top:18px;color:#fff">Salir</a>'+
+    '</div></div></div>');
+  show(n,false);
   n.querySelector("#againBtn").onclick=screenWelcome;
-  setTimeout(function(){ if(document.getElementById("againBtn")) screenWelcome(); }, 9000);
+  n.querySelector("#exitBtn").onclick=screenWelcome;
 }
 
 /* ================================================================
@@ -1064,6 +1154,7 @@ function renderAdmin(){
         '<div class="field"><label>Nombre del evento</label><input type="text" id="evtTitle" value="'+esc(CFG.eventTitle)+'"></div>'+
         '<div class="field"><label>PIN de acceso (4 dígitos)</label><input type="text" id="pinIn" maxlength="4" value="'+esc(CFG.pin)+'"></div>'+
         '<div class="field"><label>Autoexportar Excel cada N respuestas <span class="opt">(0 = desactivado)</span></label><input type="number" min="0" id="autoExp" value="'+esc(CFG.autoExportEvery)+'"></div>'+
+        '<div class="field"><label>Premios por hora <span class="opt">(cuántos premios reales pueden salir en cada hora, según la hora del sistema; 0 = sin límite)</span></label><input type="number" min="0" id="prizesPerHourIn" value="'+esc(CFG.prizesPerHour)+'"></div>'+
         '<button class="btn-sm btn-dark" id="saveCfg">Guardar ajustes</button>'+
       '</div>'+
 
@@ -1100,6 +1191,7 @@ function renderAdmin(){
     CFG.eventTitle=n.querySelector("#evtTitle").value||"Expo PyME";
     var p=n.querySelector("#pinIn").value.replace(/\D/g,"").slice(0,4); if(p.length===4)CFG.pin=p;
     CFG.autoExportEvery=Math.max(0,parseInt(n.querySelector("#autoExp").value,10)||0);
+    CFG.prizesPerHour=Math.max(0,parseInt(n.querySelector("#prizesPerHourIn").value,10)||0);
     saveCfg(CFG); pushConfig(authPin); toast("Ajustes guardados");
   };
   n.querySelector("#exportBtn").onclick=function(){
@@ -1130,7 +1222,7 @@ function renderAdmin(){
 var HEADER1=[
   "respondent_id","collector_id","date_created","date_modified","ip_address","email_address","first_name","last_name","custom_1",
   "Información de contacto (confidencial)","","","","","","","","","",
-  "En una escala del 0 al 10  ¿Qué probabilidad hay de que recomiende este evento?",
+  "En una escala del 1 al 10  ¿Qué probabilidad hay de que recomiende este evento?",
   "Favor de evaluar los siguientes aspectos del evento donde 1 es \"muy malo\" y 10 \"excelente\"","","","",
   "¿Qué fue lo que más le gustó de este evento?","",
   "¿Qué fue lo que menos le gustó de este evento?","",

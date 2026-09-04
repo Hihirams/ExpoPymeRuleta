@@ -54,6 +54,10 @@ from urllib.parse import unquote
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INDEX_FILE = os.path.join(BASE_DIR, "index.html")
 
+# Premios reales que pueden salir por hora del sistema (configurable en el
+# panel, por defecto 2). 0 = sin límite.
+DEFAULT_PRIZES_PER_HOUR = 2
+
 # Extensiones estaticas permitidas (seguridad: no servir cualquier archivo)
 STATIC_DIRS = ("img",)
 
@@ -126,6 +130,12 @@ class DB:
         self.conn.execute(
             "CREATE TABLE IF NOT EXISTS app_config(k TEXT PRIMARY KEY, v TEXT)"
         )
+        # Eventos de premio ganado (para controlar X premios por hora por
+        # hora del sistema). rid es único para evitar duplicados de reintentos.
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS prize_events("
+            "rid TEXT PRIMARY KEY, created_at TEXT)"
+        )
         self.conn.commit()
 
     def get_config(self):
@@ -174,6 +184,53 @@ class DB:
             ).fetchone()[0]
         return {"total": total, "premios": premios}
 
+    @staticmethod
+    def _hour_slot():
+        """Prefijo de la hora actual del sistema: 'YYYY-MM-DD HH' (13 chars).
+        P.ej. '2026-09-04 14' = la hora 14 de ese día."""
+        return datetime.now().strftime("%Y-%m-%d %H")
+
+    def prize_status(self, limit):
+        """Cuenta los premios ya entregados en la hora actual del sistema."""
+        slot = self._hour_slot()
+        with self.lock:
+            used = self.conn.execute(
+                "SELECT COUNT(*) FROM prize_events WHERE substr(created_at,1,13)=?",
+                (slot,),
+            ).fetchone()[0]
+        return {
+            "used": used,
+            "limit": limit,
+            "available": (limit > 0 and used < limit) or limit == 0,
+            "nextReset": slot + ":00",
+        }
+
+    def claim_prize(self, rid, premio, limit):
+        """Registra un premio (rid único). Devuelve True si se otorgó dentro
+        del cupo por hora; False si ya se rebasó el límite de la hora actual.
+        Aprovecha para marcar el premio en la respuesta guardada."""
+        slot = self._hour_slot()
+        with self.lock:
+            # Verifica el cupo de la hora actual en el MISMO lock que inserta
+            # (evita que dos celulares rebasen el límite a la vez).
+            cur_used = self.conn.execute(
+                "SELECT COUNT(*) FROM prize_events WHERE substr(created_at,1,13)=?",
+                (slot,),
+            ).fetchone()[0]
+            if limit > 0 and cur_used >= limit:
+                return False
+            self.conn.execute(
+                "INSERT OR IGNORE INTO prize_events(rid, created_at) "
+                "VALUES (?,?)", (str(rid or ""), datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            )
+            if premio:
+                self.conn.execute(
+                    "UPDATE respuestas SET premio=? WHERE respondent_id=?",
+                    (str(premio), str(rid or "")),
+                )
+            self.conn.commit()
+            return True
+
     def entries(self):
         with self.lock:
             rows = self.conn.execute(
@@ -195,7 +252,7 @@ HEADER1 = [
     "respondent_id", "collector_id", "date_created", "date_modified", "ip_address",
     "email_address", "first_name", "last_name", "custom_1",
     "Información de contacto (confidencial)", "", "", "", "", "", "", "", "", "",
-    "En una escala del 0 al 10  ¿Qué probabilidad hay de que recomiende este evento?",
+    "En una escala del 1 al 10  ¿Qué probabilidad hay de que recomiende este evento?",
     "Favor de evaluar los siguientes aspectos del evento donde 1 es \"muy malo\" y 10 \"excelente\"",
     "", "", "",
     "¿Qué fue lo que más le gustó de este evento?", "",
@@ -468,6 +525,7 @@ def panel_html(port, wifi=None):
   <div class="grid">
     <div class="card stat"><b id="total">0</b><span>Respuestas recibidas</span></div>
     <div class="card stat"><b id="premios">0</b><span>Premios entregados</span></div>
+    <div class="card stat"><b id="hora">–</b><span>Premios esta hora (límite por hora)</span></div>
   </div>
   <div class="card qr">
     <h2 style="margin:0">Escanea para responder</h2>
@@ -491,6 +549,12 @@ async function tick(){
     const s=await r.json();
     document.getElementById('total').textContent=s.total;
     document.getElementById('premios').textContent=s.premios;
+  }catch(e){}
+  try{
+    const r=await fetch('/api/prize-status',{cache:'no-store'});
+    const p=await r.json();
+    const e=document.getElementById('hora');
+    e.textContent = p.limit>0 ? (p.used+' / '+p.limit) : (p.used+' (sin límite)');
   }catch(e){}
 }
 tick(); setInterval(tick,4000);
@@ -581,6 +645,8 @@ def make_handler(db, port, wifi=None):
                 return self._json({"config": db.get_config()})
             if path == "/api/entries":
                 return self._json(db.entries())
+            if path == "/api/prize-status":
+                return self._json(db.prize_status(self._prizes_per_hour()))
             if path == "/export.xlsx":
                 return self._export()
             # estaticos (img/...)
@@ -595,6 +661,8 @@ def make_handler(db, port, wifi=None):
             path = self.path.split("?", 1)[0]
             if path == "/api/respuesta":
                 return self._recibir()
+            if path == "/api/prize":
+                return self._claim_prize()
             if path == "/api/config":
                 return self._set_config()
             return self._json({"ok": False, "error": "ruta desconocida"}, 404)
@@ -615,6 +683,39 @@ def make_handler(db, port, wifi=None):
             except Exception as ex:
                 return self._json({"ok": False, "error": str(ex)}, 500)
             return self._json({"ok": True, "nuevo": nuevo, "total": db.stats()["total"]})
+
+        def _prizes_per_hour(self):
+            """Límite de premios por hora (config del panel). Por defecto 2.
+            0 = sin límite."""
+            cfg = db.get_config() or {}
+            v = cfg.get("prizesPerHour")
+            if v is None or v == "":
+                return DEFAULT_PRIZES_PER_HOUR
+            try:
+                return max(0, int(v))
+            except (TypeError, ValueError):
+                return DEFAULT_PRIZES_PER_HOUR
+
+        def _claim_prize(self):
+            """Registra un premio real ganado (cupo por hora del sistema).
+            El teléfono manda {rid, premio}. Devuelve claimed=true|false según
+            queden cupos en la hora actual (prizesPerHour de la config)."""
+            try:
+                length = int(self.headers.get("Content-Length") or 0)
+                raw = self.rfile.read(length) if length else b"{}"
+                body = json.loads(raw.decode("utf-8"))
+            except Exception as ex:
+                return self._json({"ok": False, "error": "json invalido: %s" % ex}, 400)
+            if not isinstance(body, dict):
+                return self._json({"ok": False, "error": "se esperaba un objeto"}, 400)
+            limit = self._prizes_per_hour()
+            rid = body.get("rid")
+            if not rid:
+                return self._json({"ok": False, "error": "falta rid"}, 400)
+            claimed = db.claim_prize(rid, body.get("premio") or "", limit)
+            return self._json({"ok": True, "claimed": claimed,
+                               "used": db.prize_status(limit)["used"],
+                               "limit": limit, "nextReset": datetime.now().strftime("%H:00")})
 
         def _set_config(self):
             """Guarda la configuración central (ruleta/probabilidades). Protegido

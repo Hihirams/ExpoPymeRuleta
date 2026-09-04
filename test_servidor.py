@@ -197,6 +197,46 @@ class ServidorTest(unittest.TestCase):
                           {"pin": "1234", "config": cfg})
         self.assertEqual(code, 403)
 
+    def test_15_prize_default_2_por_hora(self):
+        # Sin config publicada, el cupo por defecto es 2 premios por hora.
+        # Los 2 primeros sí se otorgan; el 3º de la misma hora se rechaza.
+        for rid in ("t1", "t2"):
+            code, body, _ = _req(self.base + "/api/prize", "POST",
+                                 {"rid": rid, "premio": "Cupón de Estacionamiento"})
+            self.assertEqual(code, 200)
+            self.assertTrue(json.loads(body)["claimed"])
+        code, body, _ = _req(self.base + "/api/prize", "POST",
+                             {"rid": "t3", "premio": "Cupón de Estacionamiento"})
+        self.assertEqual(code, 200)
+        self.assertFalse(json.loads(body)["claimed"])  # cupo de la hora agotado
+
+    def test_16_prize_status(self):
+        code, body, _ = _req(self.base + "/api/prize-status")
+        self.assertEqual(code, 200)
+        s = json.loads(body)
+        self.assertEqual(s["limit"], 2)
+        self.assertEqual(s["used"], 2)     # t1 y t2 de la hora actual
+        self.assertFalse(s["available"])
+
+    def test_17_prize_sin_rid(self):
+        code, _, _ = _req(self.base + "/api/prize", "POST", {"premio": "X"})
+        self.assertEqual(code, 400)
+
+    def test_18_prize_ilimitado(self):
+        # Configuras 0 = sin límite: el 3º premio de la hora se otorga.
+        cfg = {"prizes": [{"name": "Y", "label": "Y", "weight": 1,
+                           "stock": 1, "isPrize": False}],
+               "prizesPerHour": 0, "pin": "4321"}
+        code, body, _ = _req(self.base + "/api/config", "POST",
+                             {"pin": "4321", "config": cfg})
+        self.assertEqual(code, 200)
+        self.assertTrue(json.loads(body)["ok"])
+        for rid in ("u1",):
+            code, body, _ = _req(self.base + "/api/prize", "POST",
+                                 {"rid": rid, "premio": "Cupón"})
+            self.assertEqual(code, 200)
+            self.assertTrue(json.loads(body)["claimed"])  # sin límite
+
     def test_10_qr(self):
         code, body, hdr = _req(self.base + "/qr.png")
         if servidor.HAS_QRCODE:
